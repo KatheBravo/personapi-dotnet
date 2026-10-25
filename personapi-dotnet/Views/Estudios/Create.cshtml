@@ -1,0 +1,37 @@
+@model Estudio
+@{
+    ViewData["Title"] = "Nuevo estudio";
+}
+<h1 class="h3">Nuevo estudio</h1>
+<form asp-action="Create" method="post" class="col-lg-8">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+    <div class="mb-3">
+        <label asp-for="CcPer" class="form-label"></label>
+        <select asp-for="CcPer" class="form-select" asp-items="ViewBag.Personas">
+            <option value="">-- Seleccione --</option>
+        </select>
+        <span asp-validation-for="CcPer"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="IdProf" class="form-label"></label>
+        <select asp-for="IdProf" class="form-select" asp-items="ViewBag.Profesiones">
+            <option value="">-- Seleccione --</option>
+        </select>
+        <span asp-validation-for="IdProf"></span>
+    </div>
+    <div class="row">
+        <div class="col-md-8 mb-3">
+            <label asp-for="Univer" class="form-label"></label>
+            <input asp-for="Univer" class="form-control" maxlength="50" />
+            <span asp-validation-for="Univer"></span>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label asp-for="Fecha" class="form-label"></label>
+            <input asp-for="Fecha" class="form-control" />
+            <span asp-validation-for="Fecha"></span>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a class="btn btn-link" asp-action="Index">Volver</a>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

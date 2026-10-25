@@ -1,0 +1,13 @@
+@model Estudio
+@{
+    ViewData["Title"] = "Eliminar estudio";
+}
+<h1 class="h3">Eliminar estudio</h1>
+<div class="alert alert-warning">
+    ¿Seguro que desea eliminar el estudio de <strong>@Model.IdProfNavigation.Nom</strong>
+    de <strong>@Model.CcPerNavigation.Nombre @Model.CcPerNavigation.Apellido</strong>?
+</div>
+<form asp-action="Delete" asp-route-idProf="@Model.IdProf" asp-route-ccPer="@Model.CcPer" method="post">
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a class="btn btn-link" asp-action="Index">Cancelar</a>
+</form>

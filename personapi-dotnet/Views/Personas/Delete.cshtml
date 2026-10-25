@@ -1,0 +1,13 @@
+@model Persona
+@{
+    ViewData["Title"] = "Eliminar persona";
+}
+<h1 class="h3">Eliminar persona</h1>
+<div class="alert alert-warning">
+    ¿Seguro que desea eliminar a <strong>@Model.Nombre @Model.Apellido</strong> (cédula @Model.Cc)?
+    También se eliminarán sus @Model.Telefonos.Count teléfono(s) y @Model.Estudios.Count estudio(s).
+</div>
+<form asp-action="Delete" asp-route-id="@Model.Cc" method="post">
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a class="btn btn-link" asp-action="Index">Cancelar</a>
+</form>

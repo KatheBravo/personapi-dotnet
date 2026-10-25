@@ -1,0 +1,55 @@
+@model Persona
+@{
+    ViewData["Title"] = "Detalle de persona";
+}
+<h1 class="h3">@Model.Nombre @Model.Apellido</h1>
+<dl class="row">
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Cc)</dt><dd class="col-sm-9">@Model.Cc</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Genero)</dt><dd class="col-sm-9">@(Model.Genero == "M" ? "Masculino" : "Femenino")</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Edad)</dt><dd class="col-sm-9">@(Model.Edad?.ToString() ?? "—")</dd>
+</dl>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 class="h5 mb-0">Teléfonos</h2>
+            <a class="btn btn-sm btn-outline-primary" asp-controller="Telefonos" asp-action="Create" asp-route-duenio="@Model.Cc">Agregar</a>
+        </div>
+        <ul class="list-group mt-2">
+            @foreach (var t in Model.Telefonos)
+            {
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>@t.Num</span><span class="text-muted">@t.Oper</span>
+                </li>
+            }
+            @if (!Model.Telefonos.Any())
+            {
+                <li class="list-group-item text-muted">Sin teléfonos.</li>
+            }
+        </ul>
+    </div>
+    <div class="col-md-6">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 class="h5 mb-0">Estudios</h2>
+            <a class="btn btn-sm btn-outline-primary" asp-controller="Estudios" asp-action="Create" asp-route-ccPer="@Model.Cc">Agregar</a>
+        </div>
+        <ul class="list-group mt-2">
+            @foreach (var e in Model.Estudios)
+            {
+                <li class="list-group-item">
+                    <strong>@e.IdProfNavigation.Nom</strong>
+                    <div class="small text-muted">@e.Univer @(e.Fecha.HasValue ? "· " + e.Fecha.Value.ToString("yyyy-MM-dd") : "")</div>
+                </li>
+            }
+            @if (!Model.Estudios.Any())
+            {
+                <li class="list-group-item text-muted">Sin estudios.</li>
+            }
+        </ul>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.Cc">Editar</a>
+    <a class="btn btn-link" asp-action="Index">Volver</a>
+</div>

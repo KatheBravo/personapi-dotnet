@@ -1,0 +1,27 @@
+@model Profesion
+@{
+    ViewData["Title"] = "Detalle de profesión";
+}
+<h1 class="h3">@Model.Nom</h1>
+<dl class="row">
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Id)</dt><dd class="col-sm-9">@Model.Id</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Des)</dt><dd class="col-sm-9">@(Model.Des ?? "—")</dd>
+</dl>
+<h2 class="h5">Personas con esta profesión</h2>
+<ul class="list-group">
+    @foreach (var e in Model.Estudios)
+    {
+        <li class="list-group-item">
+            <a asp-controller="Personas" asp-action="Details" asp-route-id="@e.CcPer">@e.CcPerNavigation.Nombre @e.CcPerNavigation.Apellido</a>
+            <span class="small text-muted">· @e.Univer</span>
+        </li>
+    }
+    @if (!Model.Estudios.Any())
+    {
+        <li class="list-group-item text-muted">Nadie registrado aún.</li>
+    }
+</ul>
+<div class="mt-4">
+    <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.Id">Editar</a>
+    <a class="btn btn-link" asp-action="Index">Volver</a>
+</div>

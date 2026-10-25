@@ -1,0 +1,9 @@
+html { font-size: 15px; }
+body { min-height: 100vh; display: flex; flex-direction: column; }
+main { flex: 1; }
+.table td, .table th { vertical-align: middle; }
+.acciones { white-space: nowrap; }
+dl.row dt { font-weight: 600; }
+.field-validation-error { color: var(--bs-danger); font-size: .875em; }
+.input-validation-error { border-color: var(--bs-danger); }
+.validation-summary-errors ul { margin-bottom: 0; }

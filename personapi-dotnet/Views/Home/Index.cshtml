@@ -1,0 +1,41 @@
+@model HomeViewModel
+@{
+    ViewData["Title"] = "Inicio";
+}
+<div class="mb-4">
+    <h1>personapi-dotnet</h1>
+    <p class="lead">Monolito ASP.NET Core MVC con patrón DAO para administrar personas, profesiones, estudios y teléfonos.</p>
+</div>
+
+@if (!Model.BaseDeDatosDisponible)
+{
+    <div class="alert alert-danger">
+        <strong>No hay conexión con la base de datos.</strong> Revise la cadena <code>ConnectionStrings:PersonaDb</code>.
+        <div class="small mt-1">@Model.MensajeError</div>
+    </div>
+}
+
+<div class="row g-3">
+    <div class="col-6 col-md-3">
+        <a class="card text-decoration-none h-100" asp-controller="Personas" asp-action="Index">
+            <div class="card-body"><div class="text-muted">Personas</div><div class="display-6">@Model.Personas</div></div>
+        </a>
+    </div>
+    <div class="col-6 col-md-3">
+        <a class="card text-decoration-none h-100" asp-controller="Profesiones" asp-action="Index">
+            <div class="card-body"><div class="text-muted">Profesiones</div><div class="display-6">@Model.Profesiones</div></div>
+        </a>
+    </div>
+    <div class="col-6 col-md-3">
+        <a class="card text-decoration-none h-100" asp-controller="Estudios" asp-action="Index">
+            <div class="card-body"><div class="text-muted">Estudios</div><div class="display-6">@Model.Estudios</div></div>
+        </a>
+    </div>
+    <div class="col-6 col-md-3">
+        <a class="card text-decoration-none h-100" asp-controller="Telefonos" asp-action="Index">
+            <div class="card-body"><div class="text-muted">Teléfonos</div><div class="display-6">@Model.Telefonos</div></div>
+        </a>
+    </div>
+</div>
+
+<p class="mt-4">La API REST está documentada en <a href="~/swagger">/swagger</a> (OpenAPI 3).</p>

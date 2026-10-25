@@ -1,0 +1,44 @@
+@model IEnumerable<Persona>
+@{
+    ViewData["Title"] = "Personas";
+}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Personas</h1>
+    <a class="btn btn-primary" asp-action="Create">Nueva persona</a>
+</div>
+
+<div class="table-responsive">
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(m => m.Cc)</th>
+            <th>@Html.DisplayNameFor(m => m.Nombre)</th>
+            <th>@Html.DisplayNameFor(m => m.Apellido)</th>
+            <th>@Html.DisplayNameFor(m => m.Genero)</th>
+            <th>@Html.DisplayNameFor(m => m.Edad)</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Cc</td>
+            <td>@item.Nombre</td>
+            <td>@item.Apellido</td>
+            <td>@item.Genero</td>
+            <td>@item.Edad</td>
+            <td class="acciones text-end">
+                <a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@item.Cc">Ver</a>
+                <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@item.Cc">Editar</a>
+                <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@item.Cc">Eliminar</a>
+            </td>
+        </tr>
+    }
+    @if (!Model.Any())
+    {
+        <tr><td colspan="6" class="text-center text-muted">No hay personas registradas.</td></tr>
+    }
+    </tbody>
+</table>
+</div>

@@ -1,0 +1,11 @@
+@model Profesion
+@{
+    ViewData["Title"] = "Nueva profesión";
+}
+<h1 class="h3">Nueva profesión</h1>
+<form asp-action="Create" method="post" class="col-lg-8">
+    <partial name="_Formulario" model="Model" />
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a class="btn btn-link" asp-action="Index">Volver</a>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

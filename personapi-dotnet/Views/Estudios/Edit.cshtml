@@ -1,0 +1,30 @@
+@model Estudio
+@{
+    ViewData["Title"] = "Editar estudio";
+}
+<h1 class="h3">Editar estudio</h1>
+<p class="text-muted">
+    @Model.CcPerNavigation?.Nombre @Model.CcPerNavigation?.Apellido (@Model.CcPer) ·
+    @Model.IdProfNavigation?.Nom (@Model.IdProf)
+</p>
+<form asp-action="Edit" method="post" class="col-lg-8">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+    <input type="hidden" asp-for="CcPer" />
+    <input type="hidden" asp-for="IdProf" />
+    <div class="row">
+        <div class="col-md-8 mb-3">
+            <label asp-for="Univer" class="form-label"></label>
+            <input asp-for="Univer" class="form-control" maxlength="50" />
+            <span asp-validation-for="Univer"></span>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label asp-for="Fecha" class="form-label"></label>
+            <input asp-for="Fecha" class="form-control" />
+            <span asp-validation-for="Fecha"></span>
+        </div>
+    </div>
+    <p class="small text-muted">La persona y la profesión forman la llave del estudio y no se pueden cambiar; para cambiarlas elimine el estudio y créelo de nuevo.</p>
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    <a class="btn btn-link" asp-action="Index">Volver</a>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

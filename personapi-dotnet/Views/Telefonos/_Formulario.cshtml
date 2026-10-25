@@ -1,0 +1,36 @@
+@model Telefono
+@{
+    var esEdicion = (bool)(ViewData["EsEdicion"] ?? false);
+}
+<div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+<div class="mb-3">
+    <label asp-for="Num" class="form-label"></label>
+    @if (esEdicion)
+    {
+        <input asp-for="Num" class="form-control" readonly />
+    }
+    else
+    {
+        <input asp-for="Num" class="form-control" maxlength="15" />
+    }
+    <span asp-validation-for="Num"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Oper" class="form-label"></label>
+    <input asp-for="Oper" class="form-control" maxlength="45" list="operadores" />
+    <datalist id="operadores">
+        <option value="Claro"></option>
+        <option value="Movistar"></option>
+        <option value="Tigo"></option>
+        <option value="WOM"></option>
+        <option value="ETB"></option>
+    </datalist>
+    <span asp-validation-for="Oper"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Duenio" class="form-label"></label>
+    <select asp-for="Duenio" class="form-select" asp-items="ViewBag.Personas">
+        <option value="">-- Seleccione --</option>
+    </select>
+    <span asp-validation-for="Duenio"></span>
+</div>

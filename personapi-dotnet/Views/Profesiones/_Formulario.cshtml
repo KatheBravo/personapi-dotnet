@@ -1,0 +1,27 @@
+@model Profesion
+@{
+    var esEdicion = (bool)(ViewData["EsEdicion"] ?? false);
+}
+<div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+<div class="mb-3">
+    <label asp-for="Id" class="form-label"></label>
+    @if (esEdicion)
+    {
+        <input asp-for="Id" class="form-control" readonly />
+    }
+    else
+    {
+        <input asp-for="Id" class="form-control" />
+    }
+    <span asp-validation-for="Id"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Nom" class="form-label"></label>
+    <input asp-for="Nom" class="form-control" maxlength="90" />
+    <span asp-validation-for="Nom"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Des" class="form-label"></label>
+    <textarea asp-for="Des" class="form-control" rows="4"></textarea>
+    <span asp-validation-for="Des"></span>
+</div>

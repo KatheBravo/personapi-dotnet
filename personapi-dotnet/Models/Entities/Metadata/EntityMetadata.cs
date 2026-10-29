@@ -96,7 +96,7 @@ public class EstudioMetadata
     // DataType.Date hace que el formulario muestre un selector de fecha en lugar de texto libre.
     [DataType(DataType.Date)]
     [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
-    public DateTime? Fecha { get; set; }
+    public DateOnly? Fecha { get; set; }
 
     [Display(Name = "Universidad")]
     [StringLength(50, ErrorMessage = "La universidad admite máximo 50 caracteres.")]

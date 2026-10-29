@@ -16,8 +16,11 @@ public partial class Estudio
     /// <summary>Persona que estudió (llave foránea a persona.cc).</summary>
     public int CcPer { get; set; }
 
-    /// <summary>Fecha de grado. En la base es DATE, sin hora.</summary>
-    public DateTime? Fecha { get; set; }
+    /// <summary>
+    /// Fecha de grado. En la base es DATE (sin hora), y desde EF Core 8 el scaffold la
+    /// genera como DateOnly, que representa exactamente eso: solo la fecha.
+    /// </summary>
+    public DateOnly? Fecha { get; set; }
 
     /// <summary>Universidad donde estudió.</summary>
     public string? Univer { get; set; }

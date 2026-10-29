@@ -59,7 +59,7 @@ public class EstudioDto
     public int CcPer { get; set; }
 
     /// <summary>Fecha de grado (yyyy-MM-dd).</summary>
-    public DateTime? Fecha { get; set; }
+    public DateOnly? Fecha { get; set; }
 
     [StringLength(50)]
     public string? Univer { get; set; }
@@ -112,10 +112,9 @@ public static class DtoMapper
         IdProf = e.IdProf, CcPer = e.CcPer, Fecha = e.Fecha, Univer = e.Univer
     };
 
-    // .Date descarta la hora: en la base la columna es DATE.
     public static Estudio ToEntity(this EstudioDto d) => new()
     {
-        IdProf = d.IdProf, CcPer = d.CcPer, Fecha = d.Fecha?.Date, Univer = d.Univer
+        IdProf = d.IdProf, CcPer = d.CcPer, Fecha = d.Fecha, Univer = d.Univer
     };
 
     public static TelefonoDto ToDto(this Telefono t) => new()

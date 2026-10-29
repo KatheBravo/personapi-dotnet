@@ -1,4 +1,6 @@
 @echo off
+REM Arranca todo el laboratorio con un doble clic: enciende Docker si hace falta,
+REM construye la imagen, levanta SQL Server + base de datos + aplicacion y abre el navegador.
 chcp 65001 >nul
 title personapi-dotnet - Laboratorio 1
 cd /d "%~dp0"

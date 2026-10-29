@@ -1,22 +1,29 @@
+<!-- Archivo del proyecto: dice qué versión de .NET se usa y qué paquetes NuGet necesita. -->
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
+    <!-- .NET 7, que es el que pide el stack del laboratorio. -->
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>personapi_dotnet</RootNamespace>
     <AssemblyName>personapi-dotnet</AssemblyName>
+    <!-- Convierte los comentarios /// en un XML que Swagger usa para describir cada endpoint. -->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- 1591 = "falta comentario XML". Lo silenciamos para no exigir /// en cada miembro. -->
     <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Entity Framework Core: el ORM, más su proveedor para SQL Server y las herramientas
+         que traen el comando Scaffold-DbContext. -->
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.20" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.20" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.20">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <!-- Swashbuckle genera la especificación OpenAPI 3 y la página de Swagger UI. -->
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
 

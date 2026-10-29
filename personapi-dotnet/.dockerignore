@@ -1,3 +1,4 @@
+# Archivos que NO se copian a la imagen de Docker (compilados locales y configuración del IDE).
 bin/
 obj/
 .vs/

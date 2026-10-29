@@ -7,7 +7,7 @@ cd /d "%~dp0"
 
 echo ==========================================================
 echo  personapi-dotnet - Laboratorio 1 (Grupo 3)
-echo  Levanta SQL Server 2022 + base persona_db + la aplicacion
+echo  Levanta SQL Server 2025 + base persona_db + la aplicacion
 echo ==========================================================
 echo.
 

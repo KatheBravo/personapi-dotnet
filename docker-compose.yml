@@ -1,8 +1,8 @@
 # =====================================================================
 # personapi-dotnet - despliegue con Docker Compose
-#   sqlserver : Microsoft SQL Server 2022 (edición Express)
+#   sqlserver : Microsoft SQL Server 2025 (edición Express)
 #   db-init   : ejecuta db/DDL.sql y db/DML.sql una vez que SQL Server está listo
-#   app       : monolito ASP.NET Core 7 (MVC + API REST + Swagger)
+#   app       : monolito ASP.NET Core 10 (MVC + API REST + Swagger)
 #
 # Uso:   docker compose up -d --build
 # Web:   http://localhost:8080
@@ -11,7 +11,7 @@
 
 services:
   sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    image: mcr.microsoft.com/mssql/server:2025-latest
     container_name: personapi-sqlserver
     platform: linux/amd64
     environment:
@@ -34,7 +34,7 @@ services:
       start_period: 20s
 
   db-init:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    image: mcr.microsoft.com/mssql/server:2025-latest
     container_name: personapi-db-init
     platform: linux/amd64
     depends_on:
@@ -60,7 +60,7 @@ services:
     build:
       context: ./personapi-dotnet
       dockerfile: Dockerfile
-    image: personapi-dotnet:1.0.0
+    image: personapi-dotnet:2.0.0
     container_name: personapi-app
     depends_on:
       db-init:

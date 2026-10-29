@@ -1,15 +1,15 @@
-Ôªø<#
+<#
   Pruebas de humo de personapi-dotnet
   -----------------------------------
   Recorre el CRUD completo de las cuatro tablas, tanto por la API REST como por
-  las vistas web (formularios MVC), y al final dice cu√°ntas pruebas pasaron.
+  las vistas web (formularios MVC), y al final dice cu·ntas pruebas pasaron.
 
-  Uso (con la aplicaci√≥n ya corriendo, por ejemplo con INICIAR.bat):
+  Uso (con la aplicaciÛn ya corriendo, por ejemplo con INICIAR.bat):
       powershell -ExecutionPolicy Bypass -File pruebas\prueba-humo.ps1
       powershell -ExecutionPolicy Bypass -File pruebas\prueba-humo.ps1 -BaseUrl http://localhost:5000
 
-  Usa datos de prueba propios (c√©dulas 1999999901 y 1999999902, profesi√≥n 900,
-  tel√©fonos 3001112233 y 3001112244) y los borra al terminar, as√≠ que no da√±a
+  Usa datos de prueba propios (cÈdulas 1999999901 y 1999999902, profesiÛn 900,
+  telÈfonos 3001112233 y 3001112244) y los borra al terminar, asÌ que no daÒa
   los datos de ejemplo.
 #>
 param([string]$BaseUrl = "http://localhost:8080")
@@ -18,8 +18,8 @@ $ErrorActionPreference = "Stop"
 $script:ok = 0
 $script:fallos = 0
 
-# Hace una petici√≥n HTTP y devuelve el c√≥digo de estado y el cuerpo.
-# Usamos HttpClient (y no Invoke-WebRequest) porque as√≠ podemos ver tal cual las
+# Hace una peticiÛn HTTP y devuelve el cÛdigo de estado y el cuerpo.
+# Usamos HttpClient (y no Invoke-WebRequest) porque asÌ podemos ver tal cual las
 # respuestas 302 de los formularios y los errores 4xx sin que PowerShell las convierta en excepciones.
 Add-Type -AssemblyName System.Net.Http
 function Nuevo-Cliente {
@@ -59,11 +59,11 @@ function Revisar([string]$Nombre, [bool]$Paso, [string]$Detalle = "") {
 }
 
 function Esperar([string]$Nombre, $Resp, [int]$Codigo) {
-    Revisar $Nombre ($Resp.Codigo -eq $Codigo) ("esperaba $Codigo, lleg√≥ " + $Resp.Codigo + " " + $Resp.Cuerpo)
+    Revisar $Nombre ($Resp.Codigo -eq $Codigo) ("esperaba $Codigo, llegÛ " + $Resp.Codigo + " " + $Resp.Cuerpo)
 }
 
-# Env√≠a un formulario MVC: primero abre la p√°gina para obtener el token antifalsificaci√≥n
-# (protecci√≥n CSRF que ASP.NET Core exige en los POST) y luego hace el POST con ese token.
+# EnvÌa un formulario MVC: primero abre la p·gina para obtener el token antifalsificaciÛn
+# (protecciÛn CSRF que ASP.NET Core exige en los POST) y luego hace el POST con ese token.
 function EnviarFormulario([string]$RutaGet, [string]$RutaPost, [hashtable]$Campos) {
     $sesion = Nuevo-Cliente
     $pagina = Pedir GET $RutaGet -Sesion $sesion
@@ -89,7 +89,7 @@ Limpiar
 Write-Output "== Swagger / OpenAPI =="
 $r = Pedir GET "/swagger/v1/swagger.json"
 Esperar "El documento OpenAPI responde" $r 200
-Revisar "La especificaci√≥n es OpenAPI 3" ($r.Cuerpo -match '"openapi"\s*:\s*"3\.') $r.Cuerpo.Substring(0, [Math]::Min(80, $r.Cuerpo.Length))
+Revisar "La especificaciÛn es OpenAPI 3" ($r.Cuerpo -match '"openapi"\s*:\s*"3\.') $r.Cuerpo.Substring(0, [Math]::Min(80, $r.Cuerpo.Length))
 foreach ($ruta in "/api/personas", "/api/profesiones", "/api/estudios", "/api/telefonos") {
     Revisar "Swagger documenta $ruta" ($r.Cuerpo -match [regex]::Escape($ruta)) "no aparece en swagger.json"
 }
@@ -101,22 +101,22 @@ Write-Output ""
 Write-Output "== API personas =="
 $r = Pedir GET "/api/personas"
 Esperar "Listar personas" $r 200
-Revisar "Vienen los datos de ejemplo del DML (5 o m√°s)" ((Contar $r.Cuerpo) -ge 5) $r.Cuerpo
+Revisar "Vienen los datos de ejemplo del DML (5 o m·s)" ((Contar $r.Cuerpo) -ge 5) $r.Cuerpo
 Esperar "Consultar persona existente" (Pedir GET "/api/personas/1010101010") 200
 Esperar "Consultar persona inexistente da 404" (Pedir GET "/api/personas/999") 404
 $nueva = @{ cc = 1999999901; nombre = "Prueba"; apellido = "Humo"; genero = "F"; edad = 30 }
 $r = Pedir POST "/api/personas" -Json $nueva
 Esperar "Crear persona" $r 201
-Revisar "Crear devuelve la ubicaci√≥n del recurso" ($r.Cuerpo -match '1999999901') $r.Cuerpo
+Revisar "Crear devuelve la ubicaciÛn del recurso" ($r.Cuerpo -match '1999999901') $r.Cuerpo
 Esperar "Crear persona duplicada da 409" (Pedir POST "/api/personas" -Json $nueva) 409
-Esperar "G√©nero inv√°lido da 400" (Pedir POST "/api/personas" -Json @{ cc = 1999999902; nombre = "X"; apellido = "Y"; genero = "X" }) 400
-Esperar "Nombre vac√≠o da 400" (Pedir POST "/api/personas" -Json @{ cc = 1999999902; nombre = ""; apellido = "Y"; genero = "M" }) 400
+Esperar "GÈnero inv·lido da 400" (Pedir POST "/api/personas" -Json @{ cc = 1999999902; nombre = "X"; apellido = "Y"; genero = "X" }) 400
+Esperar "Nombre vacÌo da 400" (Pedir POST "/api/personas" -Json @{ cc = 1999999902; nombre = ""; apellido = "Y"; genero = "M" }) 400
 $nueva.edad = 31
 Esperar "Actualizar persona" (Pedir PUT "/api/personas/1999999901" -Json $nueva) 204
-Revisar "La actualizaci√≥n qued√≥ guardada" (((Pedir GET "/api/personas/1999999901").Cuerpo | ConvertFrom-Json).edad -eq 31) "la edad no cambi√≥"
-Esperar "C√©dula distinta en URL y cuerpo da 400" (Pedir PUT "/api/personas/1010101010" -Json $nueva) 400
+Revisar "La actualizaciÛn quedÛ guardada" (((Pedir GET "/api/personas/1999999901").Cuerpo | ConvertFrom-Json).edad -eq 31) "la edad no cambiÛ"
+Esperar "CÈdula distinta en URL y cuerpo da 400" (Pedir PUT "/api/personas/1010101010" -Json $nueva) 400
 Esperar "Actualizar persona inexistente da 404" (Pedir PUT "/api/personas/999" -Json @{ cc = 999; nombre = "A"; apellido = "B"; genero = "M" }) 404
-Esperar "Tel√©fonos de una persona" (Pedir GET "/api/personas/1010101010/telefonos") 200
+Esperar "TelÈfonos de una persona" (Pedir GET "/api/personas/1010101010/telefonos") 200
 Esperar "Estudios de una persona" (Pedir GET "/api/personas/1010101010/estudios") 200
 
 # ---------------------------------------------------------------- Profesiones
@@ -124,12 +124,12 @@ Write-Output ""
 Write-Output "== API profesiones =="
 Esperar "Listar profesiones" (Pedir GET "/api/profesiones") 200
 $prof = @{ id = 900; nom = "Profesion de prueba"; des = "Creada por la prueba de humo" }
-Esperar "Crear profesi√≥n" (Pedir POST "/api/profesiones" -Json $prof) 201
-Esperar "Crear profesi√≥n duplicada da 409" (Pedir POST "/api/profesiones" -Json $prof) 409
-Esperar "Consultar profesi√≥n" (Pedir GET "/api/profesiones/900") 200
+Esperar "Crear profesiÛn" (Pedir POST "/api/profesiones" -Json $prof) 201
+Esperar "Crear profesiÛn duplicada da 409" (Pedir POST "/api/profesiones" -Json $prof) 409
+Esperar "Consultar profesiÛn" (Pedir GET "/api/profesiones/900") 200
 $prof.nom = "Profesion de prueba editada"
-Esperar "Actualizar profesi√≥n" (Pedir PUT "/api/profesiones/900" -Json $prof) 204
-Esperar "Consultar profesi√≥n inexistente da 404" (Pedir GET "/api/profesiones/12345") 404
+Esperar "Actualizar profesiÛn" (Pedir PUT "/api/profesiones/900" -Json $prof) 204
+Esperar "Consultar profesiÛn inexistente da 404" (Pedir GET "/api/profesiones/12345") 404
 
 # ---------------------------------------------------------------- Estudios
 Write-Output ""
@@ -139,32 +139,32 @@ $est = @{ idProf = 900; ccPer = 1999999901; fecha = "2020-12-01"; univer = "Univ
 Esperar "Crear estudio" (Pedir POST "/api/estudios" -Json $est) 201
 Esperar "Crear estudio duplicado da 409" (Pedir POST "/api/estudios" -Json $est) 409
 Esperar "Estudio con persona inexistente da 400" (Pedir POST "/api/estudios" -Json @{ idProf = 900; ccPer = 999 }) 400
-Esperar "Estudio con profesi√≥n inexistente da 400" (Pedir POST "/api/estudios" -Json @{ idProf = 12345; ccPer = 1999999901 }) 400
+Esperar "Estudio con profesiÛn inexistente da 400" (Pedir POST "/api/estudios" -Json @{ idProf = 12345; ccPer = 1999999901 }) 400
 Esperar "Consultar estudio por llave compuesta" (Pedir GET "/api/estudios/900/1999999901") 200
 $est.univer = "Universidad Editada"
 Esperar "Actualizar estudio" (Pedir PUT "/api/estudios/900/1999999901" -Json $est) 204
-Revisar "La universidad qued√≥ actualizada" (((Pedir GET "/api/estudios/900/1999999901").Cuerpo | ConvertFrom-Json).univer -eq "Universidad Editada") "no cambi√≥"
+Revisar "La universidad quedÛ actualizada" (((Pedir GET "/api/estudios/900/1999999901").Cuerpo | ConvertFrom-Json).univer -eq "Universidad Editada") "no cambiÛ"
 
-# ---------------------------------------------------------------- Tel√©fonos
+# ---------------------------------------------------------------- TelÈfonos
 Write-Output ""
-Write-Output "== API tel√©fonos =="
-Esperar "Listar tel√©fonos" (Pedir GET "/api/telefonos") 200
+Write-Output "== API telÈfonos =="
+Esperar "Listar telÈfonos" (Pedir GET "/api/telefonos") 200
 $tel = @{ num = "3001112233"; oper = "Claro"; duenio = 1999999901 }
-Esperar "Crear tel√©fono" (Pedir POST "/api/telefonos" -Json $tel) 201
-Esperar "Crear tel√©fono duplicado da 409" (Pedir POST "/api/telefonos" -Json $tel) 409
-Esperar "Tel√©fono con due√±o inexistente da 400" (Pedir POST "/api/telefonos" -Json @{ num = "3001112299"; oper = "Tigo"; duenio = 999 }) 400
-Esperar "N√∫mero con letras da 400" (Pedir POST "/api/telefonos" -Json @{ num = "abc"; oper = "Tigo"; duenio = 1999999901 }) 400
+Esperar "Crear telÈfono" (Pedir POST "/api/telefonos" -Json $tel) 201
+Esperar "Crear telÈfono duplicado da 409" (Pedir POST "/api/telefonos" -Json $tel) 409
+Esperar "TelÈfono con dueÒo inexistente da 400" (Pedir POST "/api/telefonos" -Json @{ num = "3001112299"; oper = "Tigo"; duenio = 999 }) 400
+Esperar "N˙mero con letras da 400" (Pedir POST "/api/telefonos" -Json @{ num = "abc"; oper = "Tigo"; duenio = 1999999901 }) 400
 $tel.oper = "Movistar"
-Esperar "Actualizar tel√©fono" (Pedir PUT "/api/telefonos/3001112233" -Json $tel) 204
-Revisar "El operador qued√≥ actualizado" (((Pedir GET "/api/telefonos/3001112233").Cuerpo | ConvertFrom-Json).oper -eq "Movistar") "no cambi√≥"
-Revisar "El tel√©fono aparece en /api/personas/{cc}/telefonos" ((Pedir GET "/api/personas/1999999901/telefonos").Cuerpo -match "3001112233") "no aparece"
+Esperar "Actualizar telÈfono" (Pedir PUT "/api/telefonos/3001112233" -Json $tel) 204
+Revisar "El operador quedÛ actualizado" (((Pedir GET "/api/telefonos/3001112233").Cuerpo | ConvertFrom-Json).oper -eq "Movistar") "no cambiÛ"
+Revisar "El telÈfono aparece en /api/personas/{cc}/telefonos" ((Pedir GET "/api/personas/1999999901/telefonos").Cuerpo -match "3001112233") "no aparece"
 
 # ---------------------------------------------------------------- Vistas MVC
 Write-Output ""
 Write-Output "== Vistas web (MVC) =="
 $r = Pedir GET "/"
-Esperar "P√°gina de inicio" $r 200
-Revisar "Inicio muestra conexi√≥n a la base de datos" (-not ($r.Cuerpo -match "No hay conexi")) "dice que no hay conexi√≥n"
+Esperar "P·gina de inicio" $r 200
+Revisar "Inicio muestra conexiÛn a la base de datos" (-not ($r.Cuerpo -match "No hay conexi")) "dice que no hay conexiÛn"
 foreach ($ruta in "/Personas", "/Profesiones", "/Estudios", "/Telefonos",
                   "/Personas/Create", "/Profesiones/Create", "/Estudios/Create", "/Telefonos/Create",
                   "/Personas/Details/1999999901", "/Personas/Edit/1999999901", "/Personas/Delete/1999999901",
@@ -178,35 +178,35 @@ Revisar "La lista de personas muestra los datos" ((Pedir GET "/Personas").Cuerpo
 
 $r = EnviarFormulario "/Personas/Create" "/Personas/Create" @{ Cc = "1999999902"; Nombre = "Formulario"; Apellido = "Web"; Genero = "M"; Edad = "40" }
 Esperar "Formulario: crear persona redirige a la lista" $r 302
-Esperar "Formulario: la persona qued√≥ en la base" (Pedir GET "/api/personas/1999999902") 200
+Esperar "Formulario: la persona quedÛ en la base" (Pedir GET "/api/personas/1999999902") 200
 $r = EnviarFormulario "/Personas/Create" "/Personas/Create" @{ Cc = "1999999902"; Nombre = "Repetida"; Apellido = "Web"; Genero = "M" }
-Revisar "Formulario: c√©dula repetida muestra el error en la p√°gina" (($r.Codigo -eq 200) -and ($r.Cuerpo -match "Ya existe una persona")) ("c√≥digo " + $r.Codigo)
+Revisar "Formulario: cÈdula repetida muestra el error en la p·gina" (($r.Codigo -eq 200) -and ($r.Cuerpo -match "Ya existe una persona")) ("cÛdigo " + $r.Codigo)
 $r = EnviarFormulario "/Personas/Create" "/Personas/Create" @{ Cc = "1999999903"; Nombre = ""; Apellido = "Web"; Genero = "Z" }
-Revisar "Formulario: datos inv√°lidos muestran mensajes de validaci√≥n" (($r.Codigo -eq 200) -and ($r.Cuerpo -match "obligatorio")) ("c√≥digo " + $r.Codigo)
+Revisar "Formulario: datos inv·lidos muestran mensajes de validaciÛn" (($r.Codigo -eq 200) -and ($r.Cuerpo -match "obligatorio")) ("cÛdigo " + $r.Codigo)
 $r = EnviarFormulario "/Personas/Edit/1999999902" "/Personas/Edit/1999999902" @{ Cc = "1999999902"; Nombre = "Formulario"; Apellido = "Editado"; Genero = "M"; Edad = "41" }
 Esperar "Formulario: editar persona" $r 302
-Revisar "Formulario: la edici√≥n qued√≥ guardada" (((Pedir GET "/api/personas/1999999902").Cuerpo | ConvertFrom-Json).apellido -eq "Editado") "no cambi√≥"
+Revisar "Formulario: la ediciÛn quedÛ guardada" (((Pedir GET "/api/personas/1999999902").Cuerpo | ConvertFrom-Json).apellido -eq "Editado") "no cambiÛ"
 $r = EnviarFormulario "/Telefonos/Create" "/Telefonos/Create" @{ Num = "3001112244"; Oper = "Tigo"; Duenio = "1999999902" }
-Esperar "Formulario: crear tel√©fono" $r 302
+Esperar "Formulario: crear telÈfono" $r 302
 $r = EnviarFormulario "/Estudios/Create" "/Estudios/Create" @{ IdProf = "900"; CcPer = "1999999902"; Fecha = "2021-06-15"; Univer = "Universidad Web" }
 Esperar "Formulario: crear estudio" $r 302
 $r = EnviarFormulario "/Estudios/Edit?idProf=900&ccPer=1999999902" "/Estudios/Edit" @{ IdProf = "900"; CcPer = "1999999902"; Fecha = "2021-06-16"; Univer = "Universidad Web Editada" }
 Esperar "Formulario: editar estudio" $r 302
 $r = EnviarFormulario "/Profesiones/Edit/900" "/Profesiones/Edit/900" @{ Id = "900"; Nom = "Profesion editada por formulario"; Des = "ok" }
-Esperar "Formulario: editar profesi√≥n" $r 302
+Esperar "Formulario: editar profesiÛn" $r 302
 
-# Borrar la persona por formulario debe borrar en cascada su tel√©fono y su estudio
+# Borrar la persona por formulario debe borrar en cascada su telÈfono y su estudio
 $r = EnviarFormulario "/Personas/Delete/1999999902" "/Personas/Delete/1999999902" @{}
 Esperar "Formulario: eliminar persona" $r 302
-Esperar "Cascada: el tel√©fono de la persona eliminada ya no existe" (Pedir GET "/api/telefonos/3001112244") 404
+Esperar "Cascada: el telÈfono de la persona eliminada ya no existe" (Pedir GET "/api/telefonos/3001112244") 404
 Esperar "Cascada: el estudio de la persona eliminada ya no existe" (Pedir GET "/api/estudios/900/1999999902") 404
 
 # ---------------------------------------------------------------- Borrados por API
 Write-Output ""
 Write-Output "== Eliminaciones por API =="
-Esperar "Eliminar tel√©fono" (Pedir DELETE "/api/telefonos/3001112233") 204
+Esperar "Eliminar telÈfono" (Pedir DELETE "/api/telefonos/3001112233") 204
 Esperar "Eliminar estudio" (Pedir DELETE "/api/estudios/900/1999999901") 204
-Esperar "Eliminar profesi√≥n" (Pedir DELETE "/api/profesiones/900") 204
+Esperar "Eliminar profesiÛn" (Pedir DELETE "/api/profesiones/900") 204
 Esperar "Eliminar persona" (Pedir DELETE "/api/personas/1999999901") 204
 Esperar "Persona eliminada ya no existe" (Pedir GET "/api/personas/1999999901") 404
 Esperar "Eliminar algo inexistente da 404" (Pedir DELETE "/api/personas/1999999901") 404

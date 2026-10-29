@@ -8,6 +8,7 @@ El modelo C4 describe la arquitectura del sistema de software en cuatro niveles 
 | 2 | Contenedores | ¿En qué piezas desplegables se divide la solución? | [`c4-nivel2-contenedores.png`](diagramas/c4-nivel2-contenedores.png) |
 | 3 | Componentes | ¿Cómo está organizado por dentro el contenedor principal? | [`c4-nivel3-componentes.png`](diagramas/c4-nivel3-componentes.png) |
 | 4 | Código | ¿Cómo se estructuran las clases y contratos del patrón DAO? | [`c4-nivel4-codigo.png`](diagramas/c4-nivel4-codigo.png) |
+| - | Secuencia CRUD | ¿Cómo interactúan los componentes en CREATE, READ, UPDATE, DELETE? | [`secuencia-crud-*.png`](diagramas/) |
 | - | Despliegue | ¿Cómo se distribuyen y comunican los contenedores en Docker? | [`c4-despliegue.png`](diagramas/c4-despliegue.png) |
 | - | Modelo ER | ¿Cuál es el modelo relacional de la base de datos? | [`diagrama-er.png`](diagramas/diagrama-er.png) |
 
@@ -287,3 +288,29 @@ flowchart TB
     class web,init,db contenedor
 ```
 </details>
+
+---
+
+## Diagramas de Secuencia UML (Operaciones CRUD)
+
+Modelado formal del comportamiento dinámico e interacción temporal entre componentes del sistema (Cliente HTTP, Controladores MVC y REST, Capa DAO de Repositorios, Entity Framework Core y Microsoft SQL Server 2025):
+
+| Operación | Descripción del Flujo | Artefacto PNG |
+|---|---|---|
+| **CREATE** | Inserción con validación de DataAnnotations, verificación de unicidad de clave y respuesta HTTP 201 Created | [`secuencia-crud-create.png`](diagramas/secuencia-crud-create.png) |
+| **READ** | Consulta optimizada con `AsNoTracking`, carga diligente de relaciones (`Include`/`ThenInclude`) y respuesta HTTP 200 OK | [`secuencia-crud-read.png`](diagramas/secuencia-crud-read.png) |
+| **UPDATE** | Modificación con validación de consistencia de clave primaria, actualización atómica y respuesta HTTP 204 No Content | [`secuencia-crud-update.png`](diagramas/secuencia-crud-update.png) |
+| **DELETE** | Eliminación de registro raíz con activación de borrado en cascada (`ON DELETE CASCADE`) en SQL Server | [`secuencia-crud-delete.png`](diagramas/secuencia-crud-delete.png) |
+
+### 1. Creación (CREATE)
+![Secuencia CRUD - CREATE](diagramas/secuencia-crud-create.png)
+
+### 2. Lectura (READ)
+![Secuencia CRUD - READ](diagramas/secuencia-crud-read.png)
+
+### 3. Actualización (UPDATE)
+![Secuencia CRUD - UPDATE](diagramas/secuencia-crud-update.png)
+
+### 4. Eliminación (DELETE)
+![Secuencia CRUD - DELETE](diagramas/secuencia-crud-delete.png)
+

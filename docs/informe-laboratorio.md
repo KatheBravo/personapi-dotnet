@@ -12,7 +12,7 @@
   - Daniel Avila Medina
   - Juan Sebastián Alvarez
 - **Repositorio:** [https://github.com/KatheBravo/personapi-dotnet](https://github.com/KatheBravo/personapi-dotnet)
-- **TAG de Entrega:** `v1.1`
+- **TAG de Entrega:** `v1.2`
 - **Fecha:** Octubre 2026
 
 ---
@@ -82,6 +82,23 @@ Detalla la relación entre los controladores, la interfaz abstracta `IPersonaRep
 Mapeo de puertos hacia la máquina anfitriona (`8080` para web/api y `1433` para SQL Server), la red puente interna y el volumen de datos persistente `sqlserver-data`.
 
 ![C4 Despliegue](diagramas/c4-despliegue.png)
+
+### 2.3 Diagramas de Secuencia UML (Operaciones CRUD)
+
+Modelan la dinámica temporal entre los clientes, controladores, repositorios DAO, el contexto EF Core y la base de datos SQL Server:
+
+- **Operación CREATE:** Valida el modelo con DataAnnotations, verifica unicidad de clave y persiste retornando HTTP 201 Created.
+- **Operación READ:** Ejecuta consultas optimizadas con `AsNoTracking()` e `Include()` de relaciones, retornando HTTP 200 OK.
+- **Operación UPDATE:** Valida coherencia de clave primaria, actualiza únicamente campos mutables y retorna HTTP 204 No Content.
+- **Operación DELETE:** Elimina el registro y activa el borrado en cascada (`ON DELETE CASCADE`) en SQL Server, retornando HTTP 204 No Content.
+
+| Creación (CREATE) | Lectura (READ) |
+|---|---|
+| ![CREATE](diagramas/secuencia-crud-create.png) | ![READ](diagramas/secuencia-crud-read.png) |
+
+| Actualización (UPDATE) | Eliminación (DELETE) |
+|---|---|
+| ![UPDATE](diagramas/secuencia-crud-update.png) | ![DELETE](diagramas/secuencia-crud-delete.png) |
 
 ---
 

@@ -44,7 +44,11 @@ personapi-dotnet/
 │       ├── c4-nivel2-contenedores.png
 │       ├── c4-nivel3-componentes.png
 │       ├── c4-nivel4-codigo.png
-│       └── c4-despliegue.png
+│       ├── c4-despliegue.png
+│       ├── secuencia-crud-create.png
+│       ├── secuencia-crud-read.png
+│       ├── secuencia-crud-update.png
+│       └── secuencia-crud-delete.png
 ├── pruebas/
 │   └── prueba-humo.ps1         # Suite de 89 pruebas automáticas (API y vistas MVC)
 └── personapi-dotnet/           # Código fuente del monolito
@@ -153,15 +157,19 @@ RESULTADO: 89 pruebas OK, 0 fallidas
 
 ## Documentación y Entregables
 
-- **Diagramas de Arquitectura (PNG):** Organizados en la carpeta [`docs/diagramas/`](docs/diagramas/):
+- **Diagramas de Arquitectura y Secuencia UML (PNG):** Organizados en la carpeta [`docs/diagramas/`](docs/diagramas/):
   - [Diagrama Entidad-Relación](docs/diagramas/diagrama-er.png)
   - [C4 Nivel 1 - Contexto](docs/diagramas/c4-nivel1-contexto.png)
   - [C4 Nivel 2 - Contenedores](docs/diagramas/c4-nivel2-contenedores.png)
   - [C4 Nivel 3 - Componentes](docs/diagramas/c4-nivel3-componentes.png)
   - [C4 Nivel 4 - Código (Patrón DAO)](docs/diagramas/c4-nivel4-codigo.png)
   - [C4 Despliegue en Docker](docs/diagramas/c4-despliegue.png)
+  - [Secuencia CRUD - CREATE](docs/diagramas/secuencia-crud-create.png)
+  - [Secuencia CRUD - READ](docs/diagramas/secuencia-crud-read.png)
+  - [Secuencia CRUD - UPDATE](docs/diagramas/secuencia-crud-update.png)
+  - [Secuencia CRUD - DELETE](docs/diagramas/secuencia-crud-delete.png)
 - **Documento de Arquitectura C4:** [`docs/arquitectura-c4.md`](docs/arquitectura-c4.md)
 - **Informe Académico del Laboratorio:** [`docs/informe-laboratorio.md`](docs/informe-laboratorio.md)
 - **Wiki del Proyecto:** [https://github.com/KatheBravo/personapi-dotnet/wiki](https://github.com/KatheBravo/personapi-dotnet/wiki)
-- **TAG de Entrega:** [`v1.1`](https://github.com/KatheBravo/personapi-dotnet/tree/v1.1)
-- **Release:** [Release v1.1](https://github.com/KatheBravo/personapi-dotnet/releases/tag/v1.1)
+- **TAG de Entrega:** [`v1.2`](https://github.com/KatheBravo/personapi-dotnet/tree/v1.2)
+- **Release:** [Release v1.2](https://github.com/KatheBravo/personapi-dotnet/releases/tag/v1.2)

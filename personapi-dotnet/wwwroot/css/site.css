@@ -1,9 +1,14 @@
+/* Estilos propios de la aplicación. La base visual la da Bootstrap (se carga en _Layout.cshtml);
+   aquí solo hay ajustes pequeños. */
+
 html { font-size: 15px; }
+/* El pie de página queda abajo aunque la página tenga poco contenido. */
 body { min-height: 100vh; display: flex; flex-direction: column; }
 main { flex: 1; }
 .table td, .table th { vertical-align: middle; }
 .acciones { white-space: nowrap; }
 dl.row dt { font-weight: 600; }
+/* Mensajes de validación en rojo, debajo de cada campo. */
 .field-validation-error { color: var(--bs-danger); font-size: .875em; }
 .input-validation-error { border-color: var(--bs-danger); }
 .validation-summary-errors ul { margin-bottom: 0; }

@@ -1,3 +1,5 @@
+@* Vista parcial con los campos del formulario. La comparten Create y Edit para no repetir HTML.
+   ViewData["EsEdicion"] decide si la llave se puede escribir (crear) o queda bloqueada (editar). *@
 @model Telefono
 @{
     var esEdicion = (bool)(ViewData["EsEdicion"] ?? false);

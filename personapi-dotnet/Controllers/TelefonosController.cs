@@ -7,6 +7,8 @@ using personapi_dotnet.Models.Interfaces;
 namespace personapi_dotnet.Controllers;
 
 /// <summary>Controlador MVC (vistas Razor) del CRUD de teléfonos.</summary>
+// IgnoreApi evita que Swagger muestre estas acciones: Swagger es solo para la API REST,
+// y estas acciones devuelven páginas HTML, no JSON.
 [ApiExplorerSettings(IgnoreApi = true)]
 public class TelefonosController : Controller
 {
@@ -19,6 +21,9 @@ public class TelefonosController : Controller
         _personas = personas;
     }
 
+    // Mismo esquema que PersonasController. El id de las rutas aquí es el número (texto).
+
+    // GET: Telefonos
     public async Task<IActionResult> Index()
     {
         return View(await _telefonos.GetAllAsync());
@@ -31,6 +36,7 @@ public class TelefonosController : Controller
         return telefono is null ? NotFound() : View(telefono);
     }
 
+    // GET: Telefonos/Create?duenio=...  (el dueño llega preseleccionado desde el detalle de la persona)
     public async Task<IActionResult> Create(int? duenio)
     {
         await CargarPersonas(duenio);
@@ -117,6 +123,7 @@ public class TelefonosController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    // Lista desplegable de personas para elegir al dueño del teléfono.
     private async Task CargarPersonas(int? seleccionado)
     {
         var personas = (await _personas.GetAllAsync())

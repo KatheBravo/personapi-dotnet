@@ -10,6 +10,8 @@ namespace personapi_dotnet.Controllers;
 /// Controlador MVC del CRUD de estudios. Como la llave es compuesta, las acciones
 /// reciben idProf y ccPer (ej. /Estudios/Edit?idProf=1&amp;ccPer=1010101010).
 /// </summary>
+// IgnoreApi evita que Swagger muestre estas acciones: Swagger es solo para la API REST,
+// y estas acciones devuelven páginas HTML, no JSON.
 [ApiExplorerSettings(IgnoreApi = true)]
 public class EstudiosController : Controller
 {
@@ -36,6 +38,9 @@ public class EstudiosController : Controller
         return estudio is null ? NotFound() : View(estudio);
     }
 
+    // GET: Estudios/Create?ccPer=...
+    // Si se llega desde el detalle de una persona, la cédula viene en la URL
+    // y el formulario aparece con esa persona ya seleccionada.
     public async Task<IActionResult> Create(int? ccPer)
     {
         await CargarListas(null, ccPer);
@@ -46,6 +51,7 @@ public class EstudiosController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("IdProf,CcPer,Fecha,Univer")] Estudio estudio)
     {
+        // Reglas de negocio: la persona y la profesión deben existir, y el estudio no puede repetirse.
         if (ModelState.IsValid)
         {
             if (!await _personas.ExistsAsync(estudio.CcPer))
@@ -97,7 +103,8 @@ public class EstudiosController : Controller
                 ModelState.AddModelError(string.Empty, "No se pudo actualizar: " + ex.GetBaseException().Message);
             }
         }
-        // Se recargan los nombres para mostrarlos de nuevo en el formulario
+        // Si hubo error, recargamos los nombres de la persona y la profesión
+        // para que el encabezado del formulario no quede vacío.
         var original = await _estudios.GetByIdAsync(estudio.IdProf, estudio.CcPer);
         if (original is not null)
         {
@@ -123,6 +130,7 @@ public class EstudiosController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    // Arma las listas desplegables de personas y profesiones para el formulario de creación.
     private async Task CargarListas(int? idProf, int? ccPer)
     {
         var personas = (await _personas.GetAllAsync())

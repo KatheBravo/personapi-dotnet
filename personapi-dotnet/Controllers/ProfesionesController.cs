@@ -6,6 +6,8 @@ using personapi_dotnet.Models.Interfaces;
 namespace personapi_dotnet.Controllers;
 
 /// <summary>Controlador MVC (vistas Razor) del CRUD de profesiones.</summary>
+// IgnoreApi evita que Swagger muestre estas acciones: Swagger es solo para la API REST,
+// y estas acciones devuelven páginas HTML, no JSON.
 [ApiExplorerSettings(IgnoreApi = true)]
 public class ProfesionesController : Controller
 {
@@ -16,6 +18,9 @@ public class ProfesionesController : Controller
         _profesiones = profesiones;
     }
 
+    // Mismo esquema que PersonasController: GET muestra, POST valida, guarda y redirige.
+
+    // GET: Profesiones
     public async Task<IActionResult> Index()
     {
         return View(await _profesiones.GetAllAsync());
@@ -28,6 +33,7 @@ public class ProfesionesController : Controller
         return profesion is null ? NotFound() : View(profesion);
     }
 
+    // GET: Profesiones/Create  -> formulario vacío
     public IActionResult Create()
     {
         return View();
@@ -37,6 +43,7 @@ public class ProfesionesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("Id,Nom,Des")] Profesion profesion)
     {
+        // El id lo escribe el usuario, así que verificamos que no esté repetido.
         if (ModelState.IsValid && await _profesiones.ExistsAsync(profesion.Id))
             ModelState.AddModelError(nameof(Profesion.Id), "Ya existe una profesión con ese id.");
 

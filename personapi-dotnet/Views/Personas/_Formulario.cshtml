@@ -1,9 +1,14 @@
+@* Vista parcial con los campos del formulario. La comparten Create y Edit para no repetir HTML.
+   ViewData["EsEdicion"] decide si la llave se puede escribir (crear) o queda bloqueada (editar). *@
 @model Persona
 @{
     var esEdicion = (bool)(ViewData["EsEdicion"] ?? false);
 }
+@* Errores generales (los que no son de un campo concreto, como un fallo al guardar). *@
 <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 <div class="mb-3">
+    @* asp-for enlaza la etiqueta y el campo con la propiedad del modelo: toma el nombre "Cédula"
+       de [Display] y agrega las reglas de validación al HTML. *@
     <label asp-for="Cc" class="form-label"></label>
     @if (esEdicion)
     {

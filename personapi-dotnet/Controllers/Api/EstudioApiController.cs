@@ -5,18 +5,11 @@ using personapi_dotnet.Models.Interfaces;
 
 namespace personapi_dotnet.Controllers.Api;
 
-/// <summary>
-/// Endpoints REST del CRUD de estudios. La llave es compuesta, por eso las rutas
-/// llevan los dos valores: /api/estudios/{idProf}/{ccPer}.
-/// </summary>
-// [ApiController] activa el comportamiento típico de una API: valida el JSON contra el DTO
-// y responde 400 automáticamente si algo está mal.
-// [Route] fija la URL base de todos los endpoints de esta clase.
-// [Produces] indica que siempre responde JSON (Swagger lo muestra así).
+/// <summary>Endpoints REST del CRUD de estudios (relación Persona - Profesión).</summary>
 [ApiController]
 [Route("api/estudios")]
 [Produces("application/json")]
-// Hereda de ControllerBase (no de Controller) porque no necesita vistas: solo devuelve datos.
+[Tags("Estudios")]
 public class EstudioApiController : ControllerBase
 {
     private readonly IEstudioRepository _estudios;
@@ -30,8 +23,7 @@ public class EstudioApiController : ControllerBase
         _profesiones = profesiones;
     }
 
-    // GET -> leer. Ok(...) produce un 200 con la lista en JSON.
-    /// <summary>Lista todos los estudios.</summary>
+    /// <summary>Lista todos los registros de estudios.</summary>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<EstudioDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<EstudioDto>>> GetAll()
@@ -40,7 +32,9 @@ public class EstudioApiController : ControllerBase
         return Ok(estudios.Select(e => e.ToDto()));
     }
 
-    /// <summary>Obtiene un estudio por profesión y cédula.</summary>
+    /// <summary>Obtiene un estudio por su llave compuesta (idProf / ccPer).</summary>
+    /// <param name="idProf">Identificador de la profesión.</param>
+    /// <param name="ccPer">Cédula de la persona.</param>
     [HttpGet("{idProf:int}/{ccPer:int}")]
     [ProducesResponseType(typeof(EstudioDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -50,10 +44,8 @@ public class EstudioApiController : ControllerBase
         return estudio is null ? NotFound() : Ok(estudio.ToDto());
     }
 
-    /// <summary>Registra un estudio (la persona y la profesión deben existir).</summary>
-    // POST -> crear. Antes de guardar se revisa que la llave no exista (para responder 409
-    // con un mensaje claro en vez de dejar que SQL Server lance un error de llave duplicada).
-    // CreatedAtAction responde 201 Created con la URL del recurso nuevo en el encabezado Location.
+    /// <summary>Registra un nuevo estudio para una persona y profesión existentes.</summary>
+    /// <param name="dto">Datos del estudio a registrar.</param>
     [HttpPost]
     [Consumes("application/json")]
     [ProducesResponseType(typeof(EstudioDto), StatusCodes.Status201Created)]
@@ -61,8 +53,7 @@ public class EstudioApiController : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<EstudioDto>> Create([FromBody] EstudioDto dto)
     {
-        // Validaciones de negocio antes de guardar: que existan la persona y la profesión
-        // (si no, 400) y que el estudio no esté repetido (si lo está, 409).
+        // Validamos existencia de las llaves foráneas y unicidad del registro compuesto
         if (!await _personas.ExistsAsync(dto.CcPer))
             return BadRequest(new { mensaje = $"No existe la persona con cédula {dto.CcPer}." });
         if (!await _profesiones.ExistsAsync(dto.IdProf))
@@ -76,17 +67,16 @@ public class EstudioApiController : ControllerBase
             return CreatedAtAction(nameof(GetById),
                 new { idProf = creado.IdProf, ccPer = creado.CcPer }, creado.ToDto());
         }
-        // Red de seguridad: si aun así la base rechaza el cambio (por ejemplo, dos peticiones
-        // iguales al mismo tiempo), se responde 409 en lugar de un error 500.
         catch (DbUpdateException ex)
         {
             return Conflict(new { mensaje = "No se pudo guardar el estudio.", detalle = ex.InnerException?.Message });
         }
     }
 
-    /// <summary>Actualiza fecha y universidad de un estudio.</summary>
-    // PUT -> actualizar. La llave viaja en la URL y también en el cuerpo; si no coinciden es un error
-    // del cliente (400). Si todo sale bien se responde 204 No Content: hecho, sin nada que devolver.
+    /// <summary>Actualiza los datos complementarios de un estudio (fecha y universidad).</summary>
+    /// <param name="idProf">Identificador de la profesión en URL.</param>
+    /// <param name="ccPer">Cédula de la persona en URL.</param>
+    /// <param name="dto">Datos actualizados.</param>
     [HttpPut("{idProf:int}/{ccPer:int}")]
     [Consumes("application/json")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -100,8 +90,9 @@ public class EstudioApiController : ControllerBase
         return await _estudios.UpdateAsync(dto.ToEntity()) ? NoContent() : NotFound();
     }
 
-    /// <summary>Elimina un estudio.</summary>
-    // DELETE -> eliminar. 204 si se borró, 404 si no existía.
+    /// <summary>Elimina el registro de un estudio por su llave compuesta.</summary>
+    /// <param name="idProf">Identificador de la profesión.</param>
+    /// <param name="ccPer">Cédula de la persona.</param>
     [HttpDelete("{idProf:int}/{ccPer:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

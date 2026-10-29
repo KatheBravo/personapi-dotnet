@@ -4,10 +4,7 @@ using personapi_dotnet.Models.Interfaces;
 
 namespace personapi_dotnet.Models.Repositories;
 
-/// <summary>
-/// Implementación del DAO de profesiones con Entity Framework Core.
-/// Sigue exactamente la misma estructura que PersonaRepository.
-/// </summary>
+/// <summary>Implementación DAO de Profesion mediante Entity Framework Core.</summary>
 public class ProfesionRepository : IProfesionRepository
 {
     private readonly PersonaDbContext _context;
@@ -21,13 +18,12 @@ public class ProfesionRepository : IProfesionRepository
     {
         return await _context.Profesions
             .AsNoTracking()
-            .OrderBy(p => p.Id)
+            .OrderBy(p => p.Nom)
             .ToListAsync();
     }
 
     public async Task<Profesion?> GetByIdAsync(int id)
     {
-        // Para la vista de detalle traemos también quién estudió esta profesión.
         return await _context.Profesions
             .AsNoTracking()
             .Include(p => p.Estudios).ThenInclude(e => e.CcPerNavigation)
@@ -51,18 +47,19 @@ public class ProfesionRepository : IProfesionRepository
         var existente = await _context.Profesions.FindAsync(profesion.Id);
         if (existente is null) return false;
 
-        _context.Entry(existente).CurrentValues.SetValues(profesion);
+        existente.Nom = profesion.Nom;
+        existente.Des = profesion.Des;
+
         await _context.SaveChangesAsync();
         return true;
     }
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var existente = await _context.Profesions.FindAsync(id);
-        if (existente is null) return false;
+        var profesion = await _context.Profesions.FindAsync(id);
+        if (profesion is null) return false;
 
-        // Los estudios que usaban esta profesión se borran en cascada en la base.
-        _context.Profesions.Remove(existente);
+        _context.Profesions.Remove(profesion);
         await _context.SaveChangesAsync();
         return true;
     }

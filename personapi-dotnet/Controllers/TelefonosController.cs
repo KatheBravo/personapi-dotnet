@@ -6,9 +6,6 @@ using personapi_dotnet.Models.Interfaces;
 
 namespace personapi_dotnet.Controllers;
 
-/// <summary>Controlador MVC (vistas Razor) del CRUD de teléfonos.</summary>
-// IgnoreApi evita que Swagger muestre estas acciones: Swagger es solo para la API REST,
-// y estas acciones devuelven páginas HTML, no JSON.
 [ApiExplorerSettings(IgnoreApi = true)]
 public class TelefonosController : Controller
 {
@@ -21,14 +18,13 @@ public class TelefonosController : Controller
         _personas = personas;
     }
 
-    // Mismo esquema que PersonasController. El id de las rutas aquí es el número (texto).
-
     // GET: Telefonos
     public async Task<IActionResult> Index()
     {
         return View(await _telefonos.GetAllAsync());
     }
 
+    // GET: Telefonos/Details/3001112233
     public async Task<IActionResult> Details(string? id)
     {
         if (string.IsNullOrWhiteSpace(id)) return NotFound();
@@ -36,17 +32,19 @@ public class TelefonosController : Controller
         return telefono is null ? NotFound() : View(telefono);
     }
 
-    // GET: Telefonos/Create?duenio=...  (el dueño llega preseleccionado desde el detalle de la persona)
+    // GET: Telefonos/Create
     public async Task<IActionResult> Create(int? duenio)
     {
         await CargarPersonas(duenio);
         return View(new Telefono { Duenio = duenio ?? 0 });
     }
 
+    // POST: Telefonos/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("Num,Oper,Duenio")] Telefono telefono)
     {
+        // El dueño debe existir y el número telefónico no puede repetirse
         if (ModelState.IsValid)
         {
             if (!await _personas.ExistsAsync(telefono.Duenio))
@@ -60,7 +58,7 @@ public class TelefonosController : Controller
             try
             {
                 await _telefonos.CreateAsync(telefono);
-                TempData["Mensaje"] = $"Teléfono {telefono.Num} creado.";
+                TempData["Mensaje"] = $"Teléfono {telefono.Num} creado exitosamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException ex)
@@ -72,6 +70,7 @@ public class TelefonosController : Controller
         return View(telefono);
     }
 
+    // GET: Telefonos/Edit/3001112233
     public async Task<IActionResult> Edit(string? id)
     {
         if (string.IsNullOrWhiteSpace(id)) return NotFound();
@@ -81,6 +80,7 @@ public class TelefonosController : Controller
         return View(telefono);
     }
 
+    // POST: Telefonos/Edit/3001112233
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(string id, [Bind("Num,Oper,Duenio")] Telefono telefono)
@@ -95,7 +95,7 @@ public class TelefonosController : Controller
             try
             {
                 if (!await _telefonos.UpdateAsync(telefono)) return NotFound();
-                TempData["Mensaje"] = "Teléfono actualizado.";
+                TempData["Mensaje"] = "Teléfono actualizado exitosamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException ex)
@@ -107,6 +107,7 @@ public class TelefonosController : Controller
         return View(telefono);
     }
 
+    // GET: Telefonos/Delete/3001112233
     public async Task<IActionResult> Delete(string? id)
     {
         if (string.IsNullOrWhiteSpace(id)) return NotFound();
@@ -114,16 +115,16 @@ public class TelefonosController : Controller
         return telefono is null ? NotFound() : View(telefono);
     }
 
+    // POST: Telefonos/Delete/3001112233
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(string id)
     {
         await _telefonos.DeleteAsync(id);
-        TempData["Mensaje"] = "Teléfono eliminado.";
+        TempData["Mensaje"] = "Teléfono eliminado exitosamente.";
         return RedirectToAction(nameof(Index));
     }
 
-    // Lista desplegable de personas para elegir al dueño del teléfono.
     private async Task CargarPersonas(int? seleccionado)
     {
         var personas = (await _personas.GetAllAsync())

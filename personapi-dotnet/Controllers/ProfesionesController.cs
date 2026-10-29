@@ -5,9 +5,6 @@ using personapi_dotnet.Models.Interfaces;
 
 namespace personapi_dotnet.Controllers;
 
-/// <summary>Controlador MVC (vistas Razor) del CRUD de profesiones.</summary>
-// IgnoreApi evita que Swagger muestre estas acciones: Swagger es solo para la API REST,
-// y estas acciones devuelven páginas HTML, no JSON.
 [ApiExplorerSettings(IgnoreApi = true)]
 public class ProfesionesController : Controller
 {
@@ -18,14 +15,13 @@ public class ProfesionesController : Controller
         _profesiones = profesiones;
     }
 
-    // Mismo esquema que PersonasController: GET muestra, POST valida, guarda y redirige.
-
     // GET: Profesiones
     public async Task<IActionResult> Index()
     {
         return View(await _profesiones.GetAllAsync());
     }
 
+    // GET: Profesiones/Details/5
     public async Task<IActionResult> Details(int? id)
     {
         if (id is null) return NotFound();
@@ -33,17 +29,18 @@ public class ProfesionesController : Controller
         return profesion is null ? NotFound() : View(profesion);
     }
 
-    // GET: Profesiones/Create  -> formulario vacío
+    // GET: Profesiones/Create
     public IActionResult Create()
     {
         return View();
     }
 
+    // POST: Profesiones/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("Id,Nom,Des")] Profesion profesion)
     {
-        // El id lo escribe el usuario, así que verificamos que no esté repetido.
+        // Validación de identificador único
         if (ModelState.IsValid && await _profesiones.ExistsAsync(profesion.Id))
             ModelState.AddModelError(nameof(Profesion.Id), "Ya existe una profesión con ese id.");
 
@@ -52,7 +49,7 @@ public class ProfesionesController : Controller
             try
             {
                 await _profesiones.CreateAsync(profesion);
-                TempData["Mensaje"] = $"Profesión {profesion.Nom} creada.";
+                TempData["Mensaje"] = $"Profesión {profesion.Nom} creada exitosamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException ex)
@@ -63,6 +60,7 @@ public class ProfesionesController : Controller
         return View(profesion);
     }
 
+    // GET: Profesiones/Edit/5
     public async Task<IActionResult> Edit(int? id)
     {
         if (id is null) return NotFound();
@@ -70,6 +68,7 @@ public class ProfesionesController : Controller
         return profesion is null ? NotFound() : View(profesion);
     }
 
+    // POST: Profesiones/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, [Bind("Id,Nom,Des")] Profesion profesion)
@@ -81,7 +80,7 @@ public class ProfesionesController : Controller
             try
             {
                 if (!await _profesiones.UpdateAsync(profesion)) return NotFound();
-                TempData["Mensaje"] = "Profesión actualizada.";
+                TempData["Mensaje"] = "Profesión actualizada exitosamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException ex)
@@ -92,6 +91,7 @@ public class ProfesionesController : Controller
         return View(profesion);
     }
 
+    // GET: Profesiones/Delete/5
     public async Task<IActionResult> Delete(int? id)
     {
         if (id is null) return NotFound();
@@ -99,12 +99,13 @@ public class ProfesionesController : Controller
         return profesion is null ? NotFound() : View(profesion);
     }
 
+    // POST: Profesiones/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
         await _profesiones.DeleteAsync(id);
-        TempData["Mensaje"] = "Profesión eliminada.";
+        TempData["Mensaje"] = "Profesión eliminada exitosamente.";
         return RedirectToAction(nameof(Index));
     }
 }

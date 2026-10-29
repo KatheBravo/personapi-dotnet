@@ -6,12 +6,6 @@ using personapi_dotnet.Models.Interfaces;
 
 namespace personapi_dotnet.Controllers;
 
-/// <summary>
-/// Controlador MVC del CRUD de estudios. Como la llave es compuesta, las acciones
-/// reciben idProf y ccPer (ej. /Estudios/Edit?idProf=1&amp;ccPer=1010101010).
-/// </summary>
-// IgnoreApi evita que Swagger muestre estas acciones: Swagger es solo para la API REST,
-// y estas acciones devuelven páginas HTML, no JSON.
 [ApiExplorerSettings(IgnoreApi = true)]
 public class EstudiosController : Controller
 {
@@ -26,11 +20,13 @@ public class EstudiosController : Controller
         _profesiones = profesiones;
     }
 
+    // GET: Estudios
     public async Task<IActionResult> Index()
     {
         return View(await _estudios.GetAllAsync());
     }
 
+    // GET: Estudios/Details?idProf=1&ccPer=1010101010
     public async Task<IActionResult> Details(int? idProf, int? ccPer)
     {
         if (idProf is null || ccPer is null) return NotFound();
@@ -38,20 +34,19 @@ public class EstudiosController : Controller
         return estudio is null ? NotFound() : View(estudio);
     }
 
-    // GET: Estudios/Create?ccPer=...
-    // Si se llega desde el detalle de una persona, la cédula viene en la URL
-    // y el formulario aparece con esa persona ya seleccionada.
+    // GET: Estudios/Create
     public async Task<IActionResult> Create(int? ccPer)
     {
         await CargarListas(null, ccPer);
         return View(new Estudio { CcPer = ccPer ?? 0 });
     }
 
+    // POST: Estudios/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("IdProf,CcPer,Fecha,Univer")] Estudio estudio)
     {
-        // Reglas de negocio: la persona y la profesión deben existir, y el estudio no puede repetirse.
+        // Validación de relaciones foráneas y clave compuesta única
         if (ModelState.IsValid)
         {
             if (!await _personas.ExistsAsync(estudio.CcPer))
@@ -67,7 +62,7 @@ public class EstudiosController : Controller
             try
             {
                 await _estudios.CreateAsync(estudio);
-                TempData["Mensaje"] = "Estudio registrado.";
+                TempData["Mensaje"] = "Estudio registrado exitosamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException ex)
@@ -79,6 +74,7 @@ public class EstudiosController : Controller
         return View(estudio);
     }
 
+    // GET: Estudios/Edit?idProf=1&ccPer=1010101010
     public async Task<IActionResult> Edit(int? idProf, int? ccPer)
     {
         if (idProf is null || ccPer is null) return NotFound();
@@ -86,6 +82,7 @@ public class EstudiosController : Controller
         return estudio is null ? NotFound() : View(estudio);
     }
 
+    // POST: Estudios/Edit
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit([Bind("IdProf,CcPer,Fecha,Univer")] Estudio estudio)
@@ -95,7 +92,7 @@ public class EstudiosController : Controller
             try
             {
                 if (!await _estudios.UpdateAsync(estudio)) return NotFound();
-                TempData["Mensaje"] = "Estudio actualizado.";
+                TempData["Mensaje"] = "Estudio actualizado exitosamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException ex)
@@ -103,8 +100,6 @@ public class EstudiosController : Controller
                 ModelState.AddModelError(string.Empty, "No se pudo actualizar: " + ex.GetBaseException().Message);
             }
         }
-        // Si hubo error, recargamos los nombres de la persona y la profesión
-        // para que el encabezado del formulario no quede vacío.
         var original = await _estudios.GetByIdAsync(estudio.IdProf, estudio.CcPer);
         if (original is not null)
         {
@@ -114,6 +109,7 @@ public class EstudiosController : Controller
         return View(estudio);
     }
 
+    // GET: Estudios/Delete?idProf=1&ccPer=1010101010
     public async Task<IActionResult> Delete(int? idProf, int? ccPer)
     {
         if (idProf is null || ccPer is null) return NotFound();
@@ -121,16 +117,16 @@ public class EstudiosController : Controller
         return estudio is null ? NotFound() : View(estudio);
     }
 
+    // POST: Estudios/Delete
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int idProf, int ccPer)
     {
         await _estudios.DeleteAsync(idProf, ccPer);
-        TempData["Mensaje"] = "Estudio eliminado.";
+        TempData["Mensaje"] = "Estudio eliminado exitosamente.";
         return RedirectToAction(nameof(Index));
     }
 
-    // Arma las listas desplegables de personas y profesiones para el formulario de creación.
     private async Task CargarListas(int? idProf, int? ccPer)
     {
         var personas = (await _personas.GetAllAsync())

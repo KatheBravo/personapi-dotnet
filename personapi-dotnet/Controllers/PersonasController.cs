@@ -6,9 +6,6 @@ using personapi_dotnet.Models.Interfaces;
 
 namespace personapi_dotnet.Controllers;
 
-/// <summary>Controlador MVC (vistas Razor) del CRUD de personas.</summary>
-// IgnoreApi evita que Swagger muestre estas acciones: Swagger es solo para la API REST,
-// y estas acciones devuelven páginas HTML, no JSON.
 [ApiExplorerSettings(IgnoreApi = true)]
 public class PersonasController : Controller
 {
@@ -19,13 +16,7 @@ public class PersonasController : Controller
         _personas = personas;
     }
 
-    // Patrón de todas las acciones MVC:
-    //   GET  -> muestra una página (lista, detalle o formulario vacío/lleno).
-    //   POST -> recibe el formulario, valida, guarda con el repositorio y redirige.
-    // Después de guardar se redirige (patrón Post/Redirect/Get) para que si el usuario
-    // recarga la página el formulario no se envíe dos veces.
-
-    // GET: Personas  -> lista de todas las personas
+    // GET: Personas
     public async Task<IActionResult> Index()
     {
         return View(await _personas.GetAllAsync());
@@ -47,15 +38,11 @@ public class PersonasController : Controller
     }
 
     // POST: Personas/Create
-    // [ValidateAntiForgeryToken] exige el token oculto que pone el formulario: así nadie
-    // puede enviar el formulario desde otra página (protección contra CSRF).
-    // [Bind] limita qué campos se aceptan del formulario, para que no "cuelen" otros.
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("Cc,Nombre,Apellido,Genero,Edad")] Persona persona)
     {
-        // ModelState.IsValid es true si se cumplieron todas las reglas de EntityMetadata.cs.
-        // Además revisamos a mano una regla de negocio: la cédula no puede repetirse.
+        // Validación de cédula única
         if (ModelState.IsValid && await _personas.ExistsAsync(persona.Cc))
             ModelState.AddModelError(nameof(Persona.Cc), "Ya existe una persona con esa cédula.");
 
@@ -64,8 +51,7 @@ public class PersonasController : Controller
             try
             {
                 await _personas.CreateAsync(persona);
-                // TempData sobrevive a una redirección: el layout lo muestra como aviso verde.
-                TempData["Mensaje"] = $"Persona {persona.Nombre} {persona.Apellido} creada.";
+                TempData["Mensaje"] = $"Persona {persona.Nombre} {persona.Apellido} creada exitosamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException ex)
@@ -73,8 +59,6 @@ public class PersonasController : Controller
                 ModelState.AddModelError(string.Empty, "No se pudo guardar: " + ex.GetBaseException().Message);
             }
         }
-        // Si algo falló volvemos a mostrar el formulario con lo que el usuario escribió
-        // y los mensajes de error junto a cada campo.
         CargarGeneros(persona.Genero);
         return View(persona);
     }
@@ -101,7 +85,7 @@ public class PersonasController : Controller
             try
             {
                 if (!await _personas.UpdateAsync(persona)) return NotFound();
-                TempData["Mensaje"] = "Persona actualizada.";
+                TempData["Mensaje"] = "Persona actualizada exitosamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException ex)
@@ -122,18 +106,15 @@ public class PersonasController : Controller
     }
 
     // POST: Personas/Delete/5
-    // Se llama DeleteConfirmed porque ya existe un Delete(int?) para el GET con la misma firma;
-    // ActionName("Delete") hace que la URL siga siendo /Personas/Delete/5.
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
         await _personas.DeleteAsync(id);
-        TempData["Mensaje"] = "Persona eliminada.";
+        TempData["Mensaje"] = "Persona eliminada exitosamente.";
         return RedirectToAction(nameof(Index));
     }
 
-    // Llena la lista desplegable de género (M/F) que usa el formulario.
     private void CargarGeneros(string? seleccionado = null)
     {
         ViewData["Generos"] = new SelectList(new[]

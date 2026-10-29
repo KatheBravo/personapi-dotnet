@@ -1,6 +1,3 @@
-// Controlador de la página de inicio. Muestra un resumen (cuántos registros hay en cada
-// tabla) y sirve como "termómetro": si la base de datos no responde, lo dice en pantalla
-// en vez de reventar con un error.
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using personapi_dotnet.Models;
@@ -8,8 +5,6 @@ using personapi_dotnet.Models.Interfaces;
 
 namespace personapi_dotnet.Controllers;
 
-// IgnoreApi evita que Swagger muestre estas acciones: Swagger es solo para la API REST,
-// y estas acciones devuelven páginas HTML, no JSON.
 [ApiExplorerSettings(IgnoreApi = true)]
 public class HomeController : Controller
 {
@@ -18,8 +13,11 @@ public class HomeController : Controller
     private readonly IEstudioRepository _estudios;
     private readonly ITelefonoRepository _telefonos;
 
-    public HomeController(IPersonaRepository personas, IProfesionRepository profesiones,
-        IEstudioRepository estudios, ITelefonoRepository telefonos)
+    public HomeController(
+        IPersonaRepository personas,
+        IProfesionRepository profesiones,
+        IEstudioRepository estudios,
+        ITelefonoRepository telefonos)
     {
         _personas = personas;
         _profesiones = profesiones;
@@ -30,8 +28,6 @@ public class HomeController : Controller
     public async Task<IActionResult> Index()
     {
         var model = new HomeViewModel();
-        // Si cualquiera de estas consultas falla es porque no hay conexión con SQL Server;
-        // capturamos el error para mostrar un aviso claro en la página.
         try
         {
             model.Personas = (await _personas.GetAllAsync()).Count();
@@ -48,7 +44,6 @@ public class HomeController : Controller
         return View(model);
     }
 
-    // Página de error genérica (la usa Program.cs en producción). No se guarda en caché.
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {

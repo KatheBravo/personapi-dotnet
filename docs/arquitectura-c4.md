@@ -145,58 +145,64 @@ classDiagram
     direction LR
     class PersonasController {
         -IPersonaRepository _personas
-        +Index() 
-        +Details(id)
-        +Create(persona)
-        +Edit(id, persona)
-        +DeleteConfirmed(id)
+        +Index() Task
+        +Details(int id) Task
+        +Create(Persona persona) Task
+        +Edit(int id, Persona persona) Task
+        +DeleteConfirmed(int id) Task
     }
     class PersonaApiController {
         -IPersonaRepository _personas
-        +GetAll()
-        +GetById(cc)
-        +Create(dto)
-        +Update(cc, dto)
-        +Delete(cc)
+        +GetAll() Task
+        +GetById(int cc) Task
+        +Create(PersonaDto dto) Task
+        +Update(int cc, PersonaDto dto) Task
+        +Delete(int cc) Task
     }
     class IPersonaRepository {
         <<interface>>
-        +GetAllAsync() Task~IEnumerable~Persona~~
-        +GetByIdAsync(cc) Task~Persona~
-        +ExistsAsync(cc) Task~bool~
-        +CreateAsync(persona) Task~Persona~
-        +UpdateAsync(persona) Task~bool~
-        +DeleteAsync(cc) Task~bool~
+        +GetAllAsync() Task
+        +GetByIdAsync(int cc) Task
+        +ExistsAsync(int cc) Task
+        +CreateAsync(Persona persona) Task
+        +UpdateAsync(Persona persona) Task
+        +DeleteAsync(int cc) Task
     }
     class PersonaRepository {
         -PersonaDbContext _context
+        +GetAllAsync() Task
+        +GetByIdAsync(int cc) Task
+        +ExistsAsync(int cc) Task
+        +CreateAsync(Persona persona) Task
+        +UpdateAsync(Persona persona) Task
+        +DeleteAsync(int cc) Task
     }
     class PersonaDbContext {
-        +DbSet~Persona~ Personas
-        +DbSet~Profesion~ Profesions
-        +DbSet~Estudio~ Estudios
-        +DbSet~Telefono~ Telefonos
+        +DbSet Personas
+        +DbSet Profesions
+        +DbSet Estudios
+        +DbSet Telefonos
     }
     class Persona {
         +int Cc
         +string Nombre
         +string Apellido
         +string Genero
-        +int? Edad
+        +int Edad
     }
     class PersonaDto {
         +int Cc
         +string Nombre
         +string Apellido
         +string Genero
-        +int? Edad
+        +int Edad
     }
     PersonasController --> IPersonaRepository : usa
     PersonaApiController --> IPersonaRepository : usa
     PersonaApiController ..> PersonaDto : convierte a
     PersonaRepository ..|> IPersonaRepository : implementa
-    PersonaRepository --> PersonaDbContext
-    PersonaDbContext o-- Persona
+    PersonaRepository --> PersonaDbContext : consulta
+    PersonaDbContext o-- Persona : contiene
 ```
 </details>
 

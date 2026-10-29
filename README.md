@@ -44,6 +44,8 @@ Equivalencias del modelo original (MySQL Workbench) a SQL Server:
 
 ## 2. Estructura del repositorio
 
+La arquitectura está documentada con el modelo C4 en [docs/arquitectura-c4.md](docs/arquitectura-c4.md). Todo el código tiene comentarios que explican qué hace cada parte y por qué.
+
 ```
 personapi-dotnet/
 ├── personapi-dotnet.sln
@@ -52,7 +54,11 @@ personapi-dotnet/
 ├── db/
 │   ├── DDL.sql                 # crea persona_db (dueño sa) y las tablas
 │   └── DML.sql                 # datos de prueba
-├── docs/img/                # diagramas (modelo, capas, clases, despliegue)
+├── docs/
+│   ├── arquitectura-c4.md    # diagramas C4 (contexto, contenedores, componentes, código, despliegue)
+│   └── c4/workspace.dsl      # el mismo modelo C4 en Structurizr DSL
+├── pruebas/
+│   └── prueba-humo.ps1       # pruebas automáticas de la API y de las vistas
 ├── INICIAR.bat / DETENER.bat  # arranque y parada rápida en Windows
 └── personapi-dotnet/           # proyecto ASP.NET Core MVC
     ├── Program.cs              # DI, EF Core, Swagger, rutas
@@ -234,7 +240,22 @@ URL del TAG a entregar: `https://github.com/KatheBravo/personapi-dotnet/tree/v1.
 
 ---
 
-## 7. Solución de problemas
+## 7. Pruebas automáticas
+
+`pruebas/prueba-humo.ps1` recorre el CRUD completo de las cuatro tablas por la API REST y por los formularios web (89 verificaciones: códigos HTTP, validaciones, llaves duplicadas, llaves foráneas inexistentes, borrado en cascada y Swagger). Usa sus propios datos de prueba y los borra al terminar.
+
+Con la aplicación corriendo:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File pruebas\prueba-humo.ps1                                   # Docker (puerto 8080)
+powershell -ExecutionPolicy Bypass -File pruebas\prueba-humo.ps1 -BaseUrl http://localhost:5000    # dotnet run
+```
+
+Al final muestra `RESULTADO: N pruebas OK, 0 fallidas`.
+
+---
+
+## 8. Solución de problemas
 
 | Síntoma | Causa probable / solución |
 |---|---|

@@ -11,19 +11,19 @@ workspace "personapi-dotnet" "Laboratorio 1 - Monolito con patrón MVC y DAO" {
 
         personapi = softwareSystem "personapi-dotnet" "Monolito que gestiona la información de personas con CRUD web y API REST." {
 
-            web = container "Aplicación web" "Vistas Razor para el CRUD, API REST en /api y documentación OpenAPI 3 en /swagger." "ASP.NET Core 7 MVC, C#, EF Core 7" {
+            web = container "Aplicación web" "Vistas Razor para el CRUD, API REST en /api y documentación OpenAPI 3 en /swagger." "ASP.NET Core 10 MVC, C#, EF Core 10" {
                 mvc = component "Controladores MVC" "PersonasController, ProfesionesController, EstudiosController, TelefonosController, HomeController." "ASP.NET Core Controller"
                 vistas = component "Vistas Razor" "Index, Create, Edit, Details y Delete por entidad, más el layout común." ".cshtml"
                 api = component "Controladores REST" "PersonaApi, ProfesionApi, EstudioApi y TelefonoApi bajo /api." "ASP.NET Core ApiController"
                 dto = component "DTO y mapeador" "Contrato JSON de la API, sin propiedades de navegación." "Clases C#"
-                swagger = component "Generador OpenAPI" "Produce swagger.json (OpenAPI 3) y Swagger UI." "Swashbuckle 6.5"
+                swagger = component "Generador OpenAPI" "Produce swagger.json (OpenAPI 3) y Swagger UI." "Swashbuckle 10"
                 idao = component "Interfaces DAO" "IPersonaRepository, IProfesionRepository, IEstudioRepository, ITelefonoRepository." "Interfaces C#"
                 repo = component "Repositorios DAO" "Implementan las operaciones CRUD de cada tabla." "Clases C# + EF Core"
-                ctx = component "PersonaDbContext + entidades" "Generado con Scaffold-DbContext; mapea las cuatro tablas." "Entity Framework Core 7"
+                ctx = component "PersonaDbContext + entidades" "Generado con Scaffold-DbContext; mapea las cuatro tablas." "Entity Framework Core 10"
             }
 
             init = container "Inicializador de BD" "Ejecuta DDL.sql y DML.sql una sola vez al desplegar." "sqlcmd"
-            db = container "persona_db" "Tablas persona, profesion, estudios y telefono." "Microsoft SQL Server 2022 Express" "Base de datos"
+            db = container "persona_db" "Tablas persona, profesion, estudios y telefono." "Microsoft SQL Server 2025 Express" "Base de datos"
         }
 
         # Relaciones de nivel 1 y 2
@@ -44,13 +44,13 @@ workspace "personapi-dotnet" "Laboratorio 1 - Monolito con patrón MVC y DAO" {
 
         produccion = deploymentEnvironment "Docker Compose" {
             deploymentNode "Equipo anfitrión" "Windows, Linux o macOS con Docker Desktop" "Docker" {
-                deploymentNode "personapi-app" "" "Contenedor Docker, aspnet:7.0" {
+                deploymentNode "personapi-app" "" "Contenedor Docker, aspnet:10.0" {
                     containerInstance web
                 }
-                deploymentNode "personapi-db-init" "" "Contenedor Docker, mssql/server:2022" {
+                deploymentNode "personapi-db-init" "" "Contenedor Docker, mssql/server:2025" {
                     containerInstance init
                 }
-                deploymentNode "personapi-sqlserver" "" "Contenedor Docker, mssql/server:2022-latest" {
+                deploymentNode "personapi-sqlserver" "" "Contenedor Docker, mssql/server:2025-latest" {
                     containerInstance db
                 }
             }

@@ -2,7 +2,7 @@
 
 > Laboratorio 1 · Grupo 3 · Katherine Sofía Bravo Herrera
 
-Laboratorio 1 — Implementación de un **monolito** con patrón **MVC** y **DAO** en ASP.NET Core 7.
+Laboratorio 1 — Implementación de un **monolito** con patrón **MVC** y **DAO** en ASP.NET Core 10.
 
 Aplicación web que hace el CRUD (crear, leer, actualizar y eliminar) de cuatro tablas — `persona`, `profesion`, `estudios` y `telefono` — de dos formas:
 
@@ -11,11 +11,24 @@ Aplicación web que hace el CRUD (crear, leer, actualizar y eliminar) de cuatro 
 
 | Componente | Tecnología |
 |---|---|
-| Lenguaje / framework | C# · .NET 7 · ASP.NET Core MVC |
-| Acceso a datos | Entity Framework Core 7 (database-first con `Scaffold-DbContext`) |
-| Base de datos | Microsoft SQL Server 2022 (Express) |
-| Documentación API | Swashbuckle.AspNetCore 6.5 (OpenAPI 3.0) |
+| Lenguaje / framework | C# 14 · .NET 10 (LTS) · ASP.NET Core MVC |
+| Acceso a datos | Entity Framework Core 10 (database-first con `Scaffold-DbContext`) |
+| Base de datos | Microsoft SQL Server 2025 (Express) |
+| Documentación API | Swashbuckle.AspNetCore 10 (OpenAPI 3.0 + Swagger UI) |
 | Contenedores | Docker + Docker Compose |
+
+### ¿Por qué estas versiones?
+
+El enunciado original menciona .NET 6/7 y SQL Server 2019/2022, pero se pidió usar versiones actuales que se acoplen bien entre sí:
+
+| Pieza | Versión | Motivo |
+|---|---|---|
+| .NET / ASP.NET Core | 10 (LTS) | Versión de soporte largo vigente (hasta noviembre de 2028). .NET 7 ya no tiene soporte, .NET 8 y 9 terminan su soporte en noviembre de 2026 y .NET 11 aún no es estable. |
+| Entity Framework Core | 10 | Debe ir en la misma versión mayor que .NET. |
+| SQL Server | 2025 Express | Versión actual y gratuita; EF Core 10 la soporta de forma nativa. |
+| Swashbuckle.AspNetCore | 10 | La línea compatible con ASP.NET Core 8 en adelante; sigue publicando OpenAPI 3.0. |
+| IDE | Visual Studio 2026 | La versión que trae soporte para .NET 10. |
+| Cliente de BD | SSMS 22 | Versión actual de SQL Server Management Studio. |
 
 ---
 
@@ -125,13 +138,13 @@ docker compose up -d --build app   # recompila solo la aplicación tras cambiar 
 
 ### 4.1 Software
 
-1. **SQL Server 2019/2022 Express** — instalación *Básica*. Crea la instancia `localhost\SQLEXPRESS`.
-2. **SQL Server Management Studio (SSMS)** 18 o superior.
-3. **Visual Studio Community 2022** con las cargas de trabajo:
+1. **SQL Server 2025 Express** — instalación *Básica*. Crea la instancia `localhost\SQLEXPRESS`.
+2. **SQL Server Management Studio (SSMS) 22**.
+3. **Visual Studio Community 2026** con las cargas de trabajo:
    - Desarrollo de ASP.NET y web
    - Almacenamiento y procesamiento de datos
    - Componentes individuales: *Plantillas de proyecto y elementos de .NET Framework* y *Características avanzadas de ASP.NET*
-4. **SDK de .NET 7** (`dotnet --list-sdks` debe mostrar una versión `7.0.x`).
+4. **SDK de .NET 10** (viene con Visual Studio 2026; `dotnet --list-sdks` debe mostrar una versión `10.0.x`).
 
 ### 4.2 Base de datos
 
@@ -227,7 +240,7 @@ El repositorio remoto debe llamarse **`personapi-dotnet`** y ser **público**.
 cd personapi-dotnet
 git init -b main
 git add .
-git commit -m "Laboratorio 1: monolito MVC + DAO con .NET 7, SQL Server 2022, REST y Swagger"
+git commit -m "Laboratorio 1: monolito MVC + DAO con .NET 10, SQL Server 2025, REST y Swagger"
 git remote add origin https://github.com/KatheBravo/personapi-dotnet.git
 git push -u origin main
 

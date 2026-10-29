@@ -48,9 +48,9 @@ flowchart TB
     cliente["<b>Desarrollador / sistema cliente</b><br/>[Persona externa]"]
 
     subgraph sis ["personapi-dotnet [Sistema de software]"]
-        web["<b>Aplicación web</b><br/>[Contenedor: ASP.NET Core 7 MVC, C#, EF Core 7]<br/>Vistas Razor para el CRUD, API REST en /api<br/>y documentación OpenAPI 3 en /swagger"]
+        web["<b>Aplicación web</b><br/>[Contenedor: ASP.NET Core 10 MVC, C#, EF Core 10]<br/>Vistas Razor para el CRUD, API REST en /api<br/>y documentación OpenAPI 3 en /swagger"]
         init["<b>Inicializador de BD</b><br/>[Contenedor: sqlcmd]<br/>Ejecuta DDL.sql y DML.sql<br/>una sola vez al desplegar"]
-        db[("<b>persona_db</b><br/>[Contenedor: SQL Server 2022 Express]<br/>Tablas persona, profesion,<br/>estudios y telefono")]
+        db[("<b>persona_db</b><br/>[Contenedor: SQL Server 2025 Express]<br/>Tablas persona, profesion,<br/>estudios y telefono")]
     end
 
     usuario -. "Navega y envía formularios<br/>[HTTP :8080, HTML]" .-> web
@@ -76,7 +76,7 @@ flowchart TB
     usuario["<b>Usuario administrativo</b><br/>[Persona]"]
     cliente["<b>Cliente REST</b><br/>[Persona externa]"]
 
-    subgraph web ["Aplicación web [Contenedor: ASP.NET Core 7]"]
+    subgraph web ["Aplicación web [Contenedor: ASP.NET Core 10]"]
         mvc["<b>Controladores MVC</b><br/>[Componente: Controller]<br/>Personas, Profesiones,<br/>Estudios, Telefonos, Home"]
         vistas["<b>Vistas Razor</b><br/>[Componente: .cshtml]<br/>Index, Create, Edit,<br/>Details, Delete"]
         api["<b>Controladores REST</b><br/>[Componente: ApiController]<br/>/api/personas, /api/profesiones,<br/>/api/estudios, /api/telefonos"]
@@ -84,9 +84,9 @@ flowchart TB
         swagger["<b>Generador OpenAPI</b><br/>[Componente: Swashbuckle]<br/>swagger.json + Swagger UI"]
         idao["<b>Interfaces DAO</b><br/>[Componente: interfaces C#]<br/>IPersonaRepository, ..."]
         repo["<b>Repositorios DAO</b><br/>[Componente: EF Core]<br/>PersonaRepository, ..."]
-        ctx["<b>PersonaDbContext + entidades</b><br/>[Componente: EF Core 7]<br/>Generado con Scaffold-DbContext"]
+        ctx["<b>PersonaDbContext + entidades</b><br/>[Componente: EF Core 10]<br/>Generado con Scaffold-DbContext"]
     end
-    db[("<b>persona_db</b><br/>[SQL Server 2022]")]
+    db[("<b>persona_db</b><br/>[SQL Server 2025]")]
 
     usuario -. "Páginas y formularios [HTTP]" .-> mvc
     cliente -. "Peticiones JSON [HTTP]" .-> api
@@ -215,14 +215,14 @@ flowchart TB
     usuario["<b>Usuario / cliente REST</b><br/>[Persona]"]
     subgraph host ["Equipo anfitrión [Docker Desktop]"]
         subgraph red ["Red interna de Compose"]
-            subgraph c1 ["personapi-app [aspnet:7.0]"]
-                web["<b>Aplicación web</b><br/>[ASP.NET Core 7] · puerto 8080"]
+            subgraph c1 ["personapi-app [aspnet:10.0]"]
+                web["<b>Aplicación web</b><br/>[ASP.NET Core 10] · puerto 8080"]
             end
-            subgraph c2 ["personapi-db-init [mssql/server:2022]"]
+            subgraph c2 ["personapi-db-init [mssql/server:2025]"]
                 init["<b>Inicializador de BD</b><br/>[sqlcmd] · corre una vez"]
             end
-            subgraph c3 ["personapi-sqlserver [mssql/server:2022-latest]"]
-                db[("<b>persona_db</b><br/>[SQL Server 2022 Express] · puerto 1433")]
+            subgraph c3 ["personapi-sqlserver [mssql/server:2025-latest]"]
+                db[("<b>persona_db</b><br/>[SQL Server 2025 Express] · puerto 1433")]
             end
         end
         vol[("volumen sqlserver-data")]

@@ -1,279 +1,179 @@
 # personapi-dotnet
 
-> Laboratorio 1 · Grupo 3 · Katherine Sofía Bravo Herrera
+> **Laboratorio 1 · Arquitectura de Software**  
+> **Autora:** Katherine Sofía Bravo Herrera  
+> **Implementación de Monolito con patrón MVC y DAO en ASP.NET Core 10 LTS y SQL Server 2025**
 
-Laboratorio 1 — Implementación de un **monolito** con patrón **MVC** y **DAO** en ASP.NET Core 10.
+[![.NET 10](https://img.shields.io/badge/.NET-10.0%20LTS-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
+[![Docker](https://img.shields.io/badge/Docker-Compose%20v2-2496ED?logo=docker)](https://www.docker.com/)
+[![SQL Server](https://img.shields.io/badge/SQL%20Server-2025%20Express-CC292B?logo=microsoft-sql-server)](https://www.microsoft.com/sql-server)
+[![Swagger / OpenAPI](https://img.shields.io/badge/OpenAPI-3.0%20(Swagger)-85EA2D?logo=swagger)](http://localhost:8080/swagger)
 
-Aplicación web que hace el CRUD (crear, leer, actualizar y eliminar) de cuatro tablas — `persona`, `profesion`, `estudios` y `telefono` — de dos formas:
+Aplicación web monolítica que realiza el CRUD integral sobre cuatro tablas relacionadas — `persona`, `profesion`, `estudios` y `telefono` — mediante dos canales sincronizados:
 
-- **Vistas web (MVC):** formularios Razor en `http://localhost:8080`.
-- **API REST:** endpoints JSON bajo `/api/...`, documentados con **Swagger / OpenAPI 3** en `/swagger`.
-
-| Componente | Tecnología |
-|---|---|
-| Lenguaje / framework | C# 14 · .NET 10 (LTS) · ASP.NET Core MVC |
-| Acceso a datos | Entity Framework Core 10 (database-first con `Scaffold-DbContext`) |
-| Base de datos | Microsoft SQL Server 2025 (Express) |
-| Documentación API | Swashbuckle.AspNetCore 10 (OpenAPI 3.0 + Swagger UI) |
-| Contenedores | Docker + Docker Compose |
-
-### ¿Por qué estas versiones?
-
-El enunciado original menciona .NET 6/7 y SQL Server 2019/2022, pero se pidió usar versiones actuales que se acoplen bien entre sí:
-
-| Pieza | Versión | Motivo |
-|---|---|---|
-| .NET / ASP.NET Core | 10 (LTS) | Versión de soporte largo vigente (hasta noviembre de 2028). .NET 7 ya no tiene soporte, .NET 8 y 9 terminan su soporte en noviembre de 2026 y .NET 11 aún no es estable. |
-| Entity Framework Core | 10 | Debe ir en la misma versión mayor que .NET. |
-| SQL Server | 2025 Express | Versión actual y gratuita; EF Core 10 la soporta de forma nativa. |
-| Swashbuckle.AspNetCore | 10 | La línea compatible con ASP.NET Core 8 en adelante; sigue publicando OpenAPI 3.0. |
-| IDE | Visual Studio 2026 | La versión que trae soporte para .NET 10. |
-| Cliente de BD | SSMS 22 | Versión actual de SQL Server Management Studio. |
+- **Vistas Web (MVC):** Formularios Razor responsivos accesibles en `http://localhost:8080`.
+- **API RESTful:** Endpoints JSON documentados interactivamente con **Swagger / OpenAPI 3** en `http://localhost:8080/swagger`.
 
 ---
 
-## 1. Modelo de datos
+## 1. Arquitectura y Modelo de Datos
 
-```
-profesion (id PK, nom, des)
-    1 ──< estudios (id_prof PK/FK, cc_per PK/FK, fecha, univer) >── 1
-                                                                  persona (cc PK, nombre, apellido, genero, edad)
-                                                                      1 ──< telefono (num PK, oper, duenio FK)
-```
+La solución desacopla la presentación de la persistencia mediante el patrón **DAO (Data Access Object)** y la inyección de dependencias nativa de .NET.
 
-- Una **persona** puede tener muchos **teléfonos** (`telefono.duenio → persona.cc`).
-- **estudios** es la tabla intermedia de la relación muchos a muchos entre **persona** y **profesion**; su llave primaria es compuesta (`id_prof`, `cc_per`).
-- Al eliminar una persona o una profesión se eliminan en cascada sus estudios/teléfonos.
+### Diagramas de Arquitectura (Modelo C4) y Entidad-Relación
 
-Equivalencias del modelo original (MySQL Workbench) a SQL Server:
+La documentación arquitectural completa con explicaciones detalladas se encuentra en [`docs/arquitectura-c4.md`](docs/arquitectura-c4.md). Cada diagrama está disponible en PNG de alta resolución:
 
-| Modelo original | SQL Server | Motivo |
+| Diagrama | Descripción | Enlace |
 |---|---|---|
-| `INT(6)`, `INT(15)` | `INT` | SQL Server no usa ancho de visualización en `INT` |
-| `TEXT` | `VARCHAR(MAX)` | `TEXT` está obsoleto en SQL Server |
-| `ENUM('M','F')` | `CHAR(1)` + `CHECK (genero IN ('M','F'))` | SQL Server no tiene `ENUM` |
+| **Modelo ER** | Estructura relacional, llaves foráneas, cardinalidades y restricciones | [![Ver ER](docs/diagramas/diagrama-er.png)](docs/diagramas/diagrama-er.png) |
+| **C4 - Nivel 1** | Contexto del sistema y actores involucrados | [![Ver Contexto](docs/diagramas/c4-nivel1-contexto.png)](docs/diagramas/c4-nivel1-contexto.png) |
+| **C4 - Nivel 2** | Contenedores desplegables (Web, DB Init, SQL Server) | [![Ver Contenedores](docs/diagramas/c4-nivel2-contenedores.png)](docs/diagramas/c4-nivel2-contenedores.png) |
+| **C4 - Nivel 3** | Componentes internos (Controllers, DTOs, DAO, DbContext) | [![Ver Componentes](docs/diagramas/c4-nivel3-componentes.png)](docs/diagramas/c4-nivel3-componentes.png) |
+| **C4 - Nivel 4** | Diagrama de clases del patrón DAO (`Persona`) | [![Ver Código](docs/diagramas/c4-nivel4-codigo.png)](docs/diagramas/c4-nivel4-codigo.png) |
+| **Despliegue** | Red interna y volúmenes en Docker Compose | [![Ver Despliegue](docs/diagramas/c4-despliegue.png)](docs/diagramas/c4-despliegue.png) |
 
 ---
 
-## 2. Estructura del repositorio
+## 2. Estructura del Repositorio
 
-La arquitectura está documentada con el modelo C4 en [docs/arquitectura-c4.md](docs/arquitectura-c4.md). Todo el código tiene comentarios que explican qué hace cada parte y por qué.
-
-```
+```text
 personapi-dotnet/
-├── personapi-dotnet.sln
-├── docker-compose.yml          # SQL Server + inicialización de BD + app
-├── .env.example                # contraseña y puertos (opcional)
+├── docker-compose.yml          # Orquestación de SQL Server, db-init y app
+├── .env.example                # Configuración de contraseñas y puertos (opcional)
+├── personapi-dotnet.sln        # Solución principal
 ├── db/
-│   ├── DDL.sql                 # crea persona_db (dueño sa) y las tablas
-│   └── DML.sql                 # datos de prueba
+│   ├── DDL.sql                 # Creación de persona_db, tablas, checks y foreign keys
+│   └── DML.sql                 # Semilla de datos de prueba iniciales
 ├── docs/
-│   ├── arquitectura-c4.md    # diagramas C4 (contexto, contenedores, componentes, código, despliegue)
-│   └── c4/workspace.dsl      # el mismo modelo C4 en Structurizr DSL
+│   ├── arquitectura-c4.md      # Detalle técnico del modelo C4 y diagramas Mermaid
+│   ├── informe-laboratorio.md  # Informe formal del laboratorio (Portada, Marco, etc.)
+│   ├── c4/workspace.dsl        # Definición formal Structurizr DSL
+│   └── diagramas/              # Imágenes PNG exportadas en alta resolución
 ├── pruebas/
-│   └── prueba-humo.ps1       # pruebas automáticas de la API y de las vistas
-├── INICIAR.bat / DETENER.bat  # arranque y parada rápida en Windows
-└── personapi-dotnet/           # proyecto ASP.NET Core MVC
-    ├── Program.cs              # DI, EF Core, Swagger, rutas
-    ├── appsettings.json        # cadena de conexión
-    ├── Dockerfile
-    ├── Controllers/            # controladores MVC (vistas)
-    │   └── Api/                # controladores REST (JSON)
+│   └── prueba-humo.ps1         # Suite automatizada de 89 pruebas de API y vistas
+└── personapi-dotnet/           # Monolito ASP.NET Core MVC + API REST
+    ├── Dockerfile              # Construcción multi-stage en SDK 10 y ASP.NET 10
+    ├── Program.cs              # DI, configuración de Swagger, EF Core y pipeline
+    ├── appsettings.json        # Cadena de conexión base
+    ├── Controllers/            # Controladores MVC (Vistas Razor)
+    │   └── Api/                # Controladores Web API (JSON RESTful)
     ├── Models/
-    │   ├── Entities/           # entidades + PersonaDbContext (Scaffold-DbContext)
-    │   ├── Interfaces/         # contratos DAO (IPersonaRepository, ...)
-    │   ├── Repositories/       # implementaciones DAO con EF Core
-    │   └── DTOs/               # objetos que viajan por la API
-    ├── Views/                  # vistas Razor (Index, Create, Edit, Details, Delete)
-    └── wwwroot/                # CSS
+    │   ├── Entities/           # Entidades EF Core y PersonaDbContext
+    │   ├── Interfaces/         # Contratos de repositorios DAO
+    │   ├── Repositories/       # Implementaciones concretas de acceso a datos
+    │   └── DTOs/               # Objetos de transferencia y mapeadores
+    └── Views/                  # Vistas Razor estructuradas por entidad
 ```
 
 ---
 
-## 3. Opción A — Despliegue con Docker (recomendado)
+## 3. Despliegue con Docker Compose
 
-### Requisitos
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows/macOS) o Docker Engine + Compose v2 (Linux).
-- Puertos libres: `8080` (app) y `1433` (SQL Server).
+El despliegue está 100% estandarizado en contenedores Docker. No se requiere instalar localmente SDKs de .NET ni instancias de SQL Server.
 
-> En equipos Apple Silicon (M1/M2/M3) la imagen de SQL Server corre emulada (`platform: linux/amd64`); active *“Use Rosetta for x86/amd64 emulation”* en Docker Desktop.
+### Requisitos Previos
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows / macOS) o Docker Engine + Compose v2 (Linux) en ejecución.
+- Puertos disponibles en la máquina anfitriona: `8080` (Web / Swagger) y `1433` (SQL Server).
 
-### Pasos
+### Ejecución en un solo paso
 
 ```bash
-# 1. Ubicarse en la raíz del repositorio
+# 1. Clonar el repositorio y ubicarse en la raíz
 cd personapi-dotnet
 
-# 2. (Opcional) cambiar contraseña o puertos
-cp .env.example .env
-
-# 3. Construir y levantar todo
+# 2. Construir y levantar todos los servicios
 docker compose up -d --build
 
-# 4. Ver el progreso (db-init debe terminar con "Base de datos persona_db lista.")
+# 3. Monitorear la inicialización de la base de datos
 docker compose logs -f db-init
-docker compose ps
 ```
 
-Cuando los tres servicios estén arriba:
+Cuando `db-init` finalice con el mensaje `Base de datos persona_db lista.`, todos los servicios estarán operativos:
 
-| Qué | URL |
-|---|---|
-| Aplicación web (MVC) | http://localhost:8080 |
-| Swagger UI | http://localhost:8080/swagger |
-| Especificación OpenAPI 3 | http://localhost:8080/swagger/v1/swagger.json |
-| SQL Server (desde SSMS) | `localhost,1433` · usuario `sa` · contraseña `Lab1-Persona2026` |
-
-Comandos útiles:
-
-```bash
-docker compose down            # detiene los contenedores (conserva los datos)
-docker compose down -v         # detiene y BORRA el volumen de la base de datos
-docker compose up -d --build app   # recompila solo la aplicación tras cambiar código
-```
-
----
-
-## 4. Opción B — Ambiente local (Windows + Visual Studio)
-
-### 4.1 Software
-
-1. **SQL Server 2025 Express** — instalación *Básica*. Crea la instancia `localhost\SQLEXPRESS`.
-2. **SQL Server Management Studio (SSMS) 22**.
-3. **Visual Studio Community 2026** con las cargas de trabajo:
-   - Desarrollo de ASP.NET y web
-   - Almacenamiento y procesamiento de datos
-   - Componentes individuales: *Plantillas de proyecto y elementos de .NET Framework* y *Características avanzadas de ASP.NET*
-4. **SDK de .NET 10** (viene con Visual Studio 2026; `dotnet --list-sdks` debe mostrar una versión `10.0.x`).
-
-### 4.2 Base de datos
-
-1. Abrir SSMS y conectarse a `localhost\SQLEXPRESS` (Autenticación de Windows).
-2. Abrir y ejecutar `db/DDL.sql` (F5). Crea `persona_db`, la deja a nombre de `sa` y crea las cuatro tablas.
-3. Abrir y ejecutar `db/DML.sql` para cargar los datos de prueba.
-
-### 4.3 Cadena de conexión
-
-`personapi-dotnet/appsettings.json`:
-
-```json
-"ConnectionStrings": {
-  "PersonaDb": "Server=localhost\\SQLEXPRESS;Database=persona_db;Trusted_Connection=True;TrustServerCertificate=true"
-}
-```
-
-Si usa autenticación SQL en lugar de Windows:
-
-```
-Server=localhost\SQLEXPRESS;Database=persona_db;User Id=sa;Password=<su clave>;TrustServerCertificate=true
-```
-
-### 4.4 Compilar y ejecutar
-
-Desde Visual Studio: abrir `personapi-dotnet.sln` y pulsar **F5** (perfil `personapi-dotnet` o `Swagger`).
-
-Desde la terminal:
-
-```bash
-cd personapi-dotnet
-dotnet restore
-dotnet build -c Release
-dotnet run                 # http://localhost:5000  y  http://localhost:5000/swagger
-```
-
-Publicar para despliegue:
-
-```bash
-dotnet publish -c Release -o ./publish
-dotnet ./publish/personapi-dotnet.dll
-```
-
-### 4.5 (Referencia) Cómo se generaron las entidades
-
-En la *Consola del Administrador de paquetes* de Visual Studio, con los paquetes `Microsoft.EntityFrameworkCore`, `Microsoft.EntityFrameworkCore.SqlServer` y `Microsoft.EntityFrameworkCore.Tools` instalados:
-
-```powershell
-Scaffold-DbContext "Server=localhost\SQLEXPRESS;Database=persona_db;Trusted_Connection=True;TrustServerCertificate=true" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models/Entities
-```
-
-Luego se retiró del `PersonaDbContext` el método `OnConfiguring` (que trae la cadena “quemada”) y la conexión se inyecta desde `Program.cs`. Las validaciones de formulario están en `Models/Entities/Metadata/EntityMetadata.cs` para que no se pierdan si se vuelve a ejecutar el scaffold (agregue `-Force` para sobreescribir).
-
----
-
-## 5. Endpoints de la API REST
-
-| Método | Ruta | Descripción |
+| Servicio | URL / Conexión | Descripción |
 |---|---|---|
-| GET | `/api/personas` | Lista personas |
-| GET | `/api/personas/{cc}` | Obtiene una persona |
-| GET | `/api/personas/{cc}/telefonos` | Teléfonos de una persona |
-| GET | `/api/personas/{cc}/estudios` | Estudios de una persona |
-| POST | `/api/personas` | Crea una persona |
-| PUT | `/api/personas/{cc}` | Actualiza una persona |
-| DELETE | `/api/personas/{cc}` | Elimina una persona (y sus teléfonos/estudios) |
-| GET | `/api/profesiones` · `/api/profesiones/{id}` | Lista / obtiene profesiones |
-| POST · PUT · DELETE | `/api/profesiones` · `/api/profesiones/{id}` | Crea / actualiza / elimina |
-| GET | `/api/estudios` · `/api/estudios/{idProf}/{ccPer}` | Lista / obtiene estudios |
-| POST · PUT · DELETE | `/api/estudios` · `/api/estudios/{idProf}/{ccPer}` | Crea / actualiza / elimina |
-| GET | `/api/telefonos` · `/api/telefonos/{num}` | Lista / obtiene teléfonos |
-| POST · PUT · DELETE | `/api/telefonos` · `/api/telefonos/{num}` | Crea / actualiza / elimina |
+| **Aplicación Web (MVC)** | `http://localhost:8080` | Interfaz gráfica para navegación y CRUD |
+| **Documentación Swagger UI** | `http://localhost:8080/swagger` | Consola interactiva OpenAPI 3 |
+| **Especificación OpenAPI** | `http://localhost:8080/swagger/v1/swagger.json` | JSON Schema del contrato de la API |
+| **SQL Server 2025 Express** | `localhost:1433` | Usuario: `sa` · Clave: `Lab1-Persona2026` |
 
-Códigos de respuesta: `200 OK`, `201 Created`, `204 No Content`, `400 Bad Request` (validación o referencia inexistente), `404 Not Found`, `409 Conflict` (llave duplicada).
-
-Ejemplo con `curl`:
+### Comandos de Mantenimiento
 
 ```bash
-curl -X POST http://localhost:8080/api/personas \
-     -H "Content-Type: application/json" \
-     -d '{"cc":1060606060,"nombre":"Sofia","apellido":"Ramirez","genero":"F","edad":30}'
+# Detener los contenedores conservando los datos
+docker compose down
 
-curl http://localhost:8080/api/personas/1060606060
+# Detener los contenedores y BORRAR el volumen de la base de datos (reinicio limpio)
+docker compose down -v
+
+# Reconstruir únicamente la aplicación tras modificar código C#
+docker compose up -d --build app
 ```
 
 ---
 
-## 6. Control de versiones y entrega (TAG)
+## 4. Endpoints de la API REST
 
-El repositorio remoto debe llamarse **`personapi-dotnet`** y ser **público**.
+Todos los endpoints producen y consumen `application/json` con respuestas tipadas y códigos HTTP estándar (`200 OK`, `201 Created`, `204 No Content`, `400 Bad Request`, `404 Not Found`, `409 Conflict`):
 
-```bash
-cd personapi-dotnet
-git init -b main
-git add .
-git commit -m "Laboratorio 1: monolito MVC + DAO con .NET 10, SQL Server 2025, REST y Swagger"
-git remote add origin https://github.com/KatheBravo/personapi-dotnet.git
-git push -u origin main
-
-# TAG de entrega
-git tag -a v1.0.0 -m "Entrega Laboratorio 1"
-git push origin v1.0.0
-```
-
-URL del TAG a entregar: `https://github.com/KatheBravo/personapi-dotnet/tree/v1.0.0`
+| Módulo | Método | Ruta | Descripción |
+|---|---|---|---|
+| **Personas** | `GET` | `/api/personas` | Lista todas las personas |
+| | `GET` | `/api/personas/{cc}` | Obtiene una persona por cédula |
+| | `GET` | `/api/personas/{cc}/telefonos` | Teléfonos de una persona |
+| | `GET` | `/api/personas/{cc}/estudios` | Estudios cursados por una persona |
+| | `POST` | `/api/personas` | Registra una nueva persona |
+| | `PUT` | `/api/personas/{cc}` | Actualiza datos de una persona |
+| | `DELETE` | `/api/personas/{cc}` | Elimina persona y dependencias en cascada |
+| **Profesiones** | `GET` | `/api/profesiones` | Lista todas las profesiones |
+| | `GET` | `/api/profesiones/{id}` | Obtiene profesión por id |
+| | `POST` | `/api/profesiones` | Crea una profesión |
+| | `PUT` | `/api/profesiones/{id}` | Actualiza una profesión |
+| | `DELETE` | `/api/profesiones/{id}` | Elimina profesión y estudios asociados |
+| **Estudios** | `GET` | `/api/estudios` | Lista todos los estudios |
+| | `GET` | `/api/estudios/{idProf}/{ccPer}` | Obtiene estudio por llave compuesta |
+| | `POST` | `/api/estudios` | Registra un nuevo estudio |
+| | `PUT` | `/api/estudios/{idProf}/{ccPer}` | Actualiza fecha o universidad |
+| | `DELETE` | `/api/estudios/{idProf}/{ccPer}` | Elimina registro de estudio |
+| **Teléfonos** | `GET` | `/api/telefonos` | Lista todos los teléfonos |
+| | `GET` | `/api/telefonos/{num}` | Obtiene teléfono por número |
+| | `POST` | `/api/telefonos` | Asocia un teléfono a un dueño |
+| | `PUT` | `/api/telefonos/{num}` | Actualiza operador o dueño |
+| | `DELETE` | `/api/telefonos/{num}` | Elimina un teléfono |
 
 ---
 
-## 7. Pruebas automáticas
+## 5. Pruebas Automáticas de Calidad
 
-`pruebas/prueba-humo.ps1` recorre el CRUD completo de las cuatro tablas por la API REST y por los formularios web (89 verificaciones: códigos HTTP, validaciones, llaves duplicadas, llaves foráneas inexistentes, borrado en cascada y Swagger). Usa sus propios datos de prueba y los borra al terminar.
-
-Con la aplicación corriendo:
+El script `pruebas/prueba-humo.ps1` ejecuta una batería de **89 verificaciones automáticas** cubriendo:
+- Respuestas HTTP de la API REST (`200`, `201`, `204`, `400`, `404`, `409`).
+- Navegación, renderizado y envío de formularios MVC (protección CSRF y redirecciones 302).
+- Validaciones de llaves foráneas inexistentes y unicidad de llaves primarias.
+- Eliminación en cascada (`ON DELETE CASCADE`).
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File pruebas\prueba-humo.ps1                                   # Docker (puerto 8080)
-powershell -ExecutionPolicy Bypass -File pruebas\prueba-humo.ps1 -BaseUrl http://localhost:5000    # dotnet run
+powershell -ExecutionPolicy Bypass -File pruebas\prueba-humo.ps1
 ```
 
-Al final muestra `RESULTADO: N pruebas OK, 0 fallidas`.
+Resultado esperado:
+```text
+==========================================================
+RESULTADO: 89 pruebas OK, 0 fallidas.
+==========================================================
+```
 
 ---
 
-## 8. Solución de problemas
+## 6. Documento Formal del Laboratorio y Wiki
 
-| Síntoma | Causa probable / solución |
-|---|---|
-| La página de inicio dice *“No hay conexión con la base de datos”* | Revise la cadena `PersonaDb`, que el servicio SQL Server esté encendido y que exista `persona_db`. |
-| `db-init` termina con error de login | La contraseña de `sa` no cumple la política (mín. 8 caracteres, mayúsculas, minúsculas, números y símbolos) o se cambió `.env` después de crear el volumen: ejecute `docker compose down -v` y vuelva a levantar. |
-| *A network-related or instance-specific error* en local | Active el protocolo TCP/IP y el servicio *SQL Server Browser* en el *SQL Server Configuration Manager*. |
-| *The certificate chain was issued by an authority that is not trusted* | Falta `TrustServerCertificate=true` en la cadena de conexión. |
-| Puerto 1433 u 8080 ocupado | Cambie `SQL_PORT` o `APP_PORT` en `.env`. |
+- El informe académico formal requerido por el enunciado (Portada, Marco Conceptual, Diseño, Procedimiento, Conclusiones y Referencias) se encuentra en [`docs/informe-laboratorio.md`](docs/informe-laboratorio.md).
+- Toda la documentación está publicada y sincronizada en la Wiki oficial del proyecto: [Wiki personapi-dotnet](https://github.com/KatheBravo/personapi-dotnet/wiki).
+
+---
+
+## 7. Entrega y TAG
+
+- **TAG oficial:** `v1.0`
+- **Release:** [Release v1.0](https://github.com/KatheBravo/personapi-dotnet/releases/tag/v1.0)
+- **URL del TAG:** `https://github.com/KatheBravo/personapi-dotnet/tree/v1.0`

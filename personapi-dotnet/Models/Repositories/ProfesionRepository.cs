@@ -4,7 +4,10 @@ using personapi_dotnet.Models.Interfaces;
 
 namespace personapi_dotnet.Models.Repositories;
 
-/// <summary>Implementación del DAO de Profesion usando Entity Framework Core.</summary>
+/// <summary>
+/// Implementación del DAO de profesiones con Entity Framework Core.
+/// Sigue exactamente la misma estructura que PersonaRepository.
+/// </summary>
 public class ProfesionRepository : IProfesionRepository
 {
     private readonly PersonaDbContext _context;
@@ -24,6 +27,7 @@ public class ProfesionRepository : IProfesionRepository
 
     public async Task<Profesion?> GetByIdAsync(int id)
     {
+        // Para la vista de detalle traemos también quién estudió esta profesión.
         return await _context.Profesions
             .AsNoTracking()
             .Include(p => p.Estudios).ThenInclude(e => e.CcPerNavigation)
@@ -57,6 +61,7 @@ public class ProfesionRepository : IProfesionRepository
         var existente = await _context.Profesions.FindAsync(id);
         if (existente is null) return false;
 
+        // Los estudios que usaban esta profesión se borran en cascada en la base.
         _context.Profesions.Remove(existente);
         await _context.SaveChangesAsync();
         return true;

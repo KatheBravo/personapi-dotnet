@@ -4,7 +4,9 @@ using personapi_dotnet.Models.Interfaces;
 
 namespace personapi_dotnet.Models.Repositories;
 
-/// <summary>Implementación del DAO de Telefono usando Entity Framework Core.</summary>
+/// <summary>
+/// Implementación del DAO de teléfonos con Entity Framework Core.
+/// </summary>
 public class TelefonoRepository : ITelefonoRepository
 {
     private readonly PersonaDbContext _context;
@@ -16,6 +18,7 @@ public class TelefonoRepository : ITelefonoRepository
 
     public async Task<IEnumerable<Telefono>> GetAllAsync()
     {
+        // Traemos al dueño para poder mostrar su nombre en la lista.
         return await _context.Telefonos
             .AsNoTracking()
             .Include(t => t.DuenioNavigation)
@@ -56,6 +59,8 @@ public class TelefonoRepository : ITelefonoRepository
         var existente = await _context.Telefonos.FindAsync(telefono.Num);
         if (existente is null) return false;
 
+        // El número es la llave y no cambia; sí se puede cambiar el operador
+        // o pasarle el teléfono a otra persona.
         existente.Oper = telefono.Oper;
         existente.Duenio = telefono.Duenio;
         await _context.SaveChangesAsync();

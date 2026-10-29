@@ -4,7 +4,10 @@ using personapi_dotnet.Models.Interfaces;
 
 namespace personapi_dotnet.Models.Repositories;
 
-/// <summary>Implementación del DAO de Estudio (llave compuesta id_prof + cc_per).</summary>
+/// <summary>
+/// Implementación del DAO de estudios. Lo particular aquí es la llave compuesta:
+/// para encontrar un estudio siempre se necesitan la profesión (idProf) y la cédula (ccPer).
+/// </summary>
 public class EstudioRepository : IEstudioRepository
 {
     private readonly PersonaDbContext _context;
@@ -16,6 +19,7 @@ public class EstudioRepository : IEstudioRepository
 
     public async Task<IEnumerable<Estudio>> GetAllAsync()
     {
+        // Incluimos persona y profesión para que la lista muestre nombres y no solo números.
         return await _context.Estudios
             .AsNoTracking()
             .Include(e => e.CcPerNavigation)
@@ -56,10 +60,12 @@ public class EstudioRepository : IEstudioRepository
 
     public async Task<bool> UpdateAsync(Estudio estudio)
     {
+        // FindAsync recibe los valores de la llave en el mismo orden en que se definió
+        // en el DbContext: primero IdProf y luego CcPer.
         var existente = await _context.Estudios.FindAsync(estudio.IdProf, estudio.CcPer);
         if (existente is null) return false;
 
-        // Solo cambian los atributos no llave: fecha y universidad.
+        // Solo se pueden cambiar los datos que no son llave.
         existente.Fecha = estudio.Fecha;
         existente.Univer = estudio.Univer;
         await _context.SaveChangesAsync();

@@ -5,12 +5,21 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 namespace personapi_dotnet.Models.Entities;
 
 /*
- * Las clases generadas por Scaffold-DbContext se sobrescriben cada vez que se regenera
- * el modelo. Para no perder las validaciones y nombres para mostrar, se declaran aquí
- * como clases "partial" con [ModelMetadataType], que ASP.NET Core MVC combina con las
- * entidades al validar formularios y al generar las etiquetas en las vistas.
+ * ¿Por qué existe este archivo?
+ * Las entidades (Persona, Profesion, ...) las genera Scaffold-DbContext, y si mañana
+ * se vuelve a ejecutar ese comando, sobrescribe esos archivos. Si pusiéramos las
+ * validaciones allí, se perderían.
+ *
+ * La solución es usar "clases parciales": C# permite repartir una misma clase en varios
+ * archivos. Aquí abrimos otra parte de cada entidad y le pegamos [ModelMetadataType],
+ * que le dice a ASP.NET Core: "las reglas de validación y los nombres para mostrar de
+ * esta clase están en esta otra clase de metadatos".
+ *
+ * Esas reglas se usan en dos lugares: al validar los formularios en el servidor y al
+ * generar la validación en el navegador (jQuery Validation).
  */
 
+// ---------------------------------------------------------------- Persona
 [ModelMetadataType(typeof(PersonaMetadata))]
 public partial class Persona { }
 
@@ -33,6 +42,7 @@ public class PersonaMetadata
 
     [Display(Name = "Género")]
     [Required(ErrorMessage = "El género es obligatorio.")]
+    // Misma regla que el CHECK de la base de datos: solo M o F.
     [RegularExpression("^[MF]$", ErrorMessage = "El género debe ser 'M' o 'F'.")]
     public string Genero { get; set; } = null!;
 
@@ -40,10 +50,12 @@ public class PersonaMetadata
     [Range(0, 150, ErrorMessage = "La edad debe estar entre 0 y 150.")]
     public int? Edad { get; set; }
 
+    // Las colecciones de navegación no vienen en el formulario, así que no se validan.
     [ValidateNever] public object? Estudios { get; set; }
     [ValidateNever] public object? Telefonos { get; set; }
 }
 
+// ---------------------------------------------------------------- Profesion
 [ModelMetadataType(typeof(ProfesionMetadata))]
 public partial class Profesion { }
 
@@ -66,6 +78,7 @@ public class ProfesionMetadata
     [ValidateNever] public object? Estudios { get; set; }
 }
 
+// ---------------------------------------------------------------- Estudio
 [ModelMetadataType(typeof(EstudioMetadata))]
 public partial class Estudio { }
 
@@ -80,6 +93,7 @@ public class EstudioMetadata
     public int CcPer { get; set; }
 
     [Display(Name = "Fecha de grado")]
+    // DataType.Date hace que el formulario muestre un selector de fecha en lugar de texto libre.
     [DataType(DataType.Date)]
     [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
     public DateTime? Fecha { get; set; }
@@ -95,6 +109,7 @@ public class EstudioMetadata
     [ValidateNever] public object? IdProfNavigation { get; set; }
 }
 
+// ---------------------------------------------------------------- Telefono
 [ModelMetadataType(typeof(TelefonoMetadata))]
 public partial class Telefono { }
 
@@ -103,6 +118,7 @@ public class TelefonoMetadata
     [Display(Name = "Número")]
     [Required(ErrorMessage = "El número es obligatorio.")]
     [StringLength(15, ErrorMessage = "El número admite máximo 15 caracteres.")]
+    // Solo dígitos (de 7 a 14), con un '+' opcional al inicio para números internacionales.
     [RegularExpression(@"^\+?[0-9]{7,14}$", ErrorMessage = "Solo dígitos (7 a 14), opcionalmente con '+' al inicio.")]
     public string Num { get; set; } = null!;
 

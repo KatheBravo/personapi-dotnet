@@ -4,10 +4,16 @@ using personapi_dotnet.Models.Entities;
 namespace personapi_dotnet.Models.DTOs;
 
 /*
- * DTO (Data Transfer Object): lo que viaja como JSON por la API REST.
- * Se usan en lugar de las entidades para no exponer las propiedades de navegación
- * (evita ciclos persona -> telefonos -> persona) y para que Swagger muestre
- * contratos limpios.
+ * DTO (Data Transfer Object): es la forma exacta que tienen los datos cuando viajan
+ * como JSON por la API REST.
+ *
+ * ¿Por qué no devolver directamente las entidades? Porque las entidades tienen
+ * propiedades de navegación (Persona -> Telefonos -> Persona -> ...) que al convertirse
+ * a JSON forman un ciclo infinito, y además mostrarían más de lo necesario.
+ * Con los DTO el "contrato" de la API queda limpio, estable y separado de la base de datos.
+ *
+ * Los atributos [Required], [StringLength], [Range]... los revisa [ApiController]
+ * automáticamente: si el JSON no cumple, responde 400 Bad Request sin llegar al controlador.
  */
 
 /// <summary>Persona tal como se expone en la API.</summary>
@@ -73,7 +79,11 @@ public class TelefonoDto
     public int Duenio { get; set; }
 }
 
-/// <summary>Conversión entre entidades y DTO.</summary>
+/// <summary>
+/// Conversión entre entidades y DTO. Son métodos de extensión, por eso se pueden
+/// escribir como persona.ToDto() o dto.ToEntity(). Se hace a mano porque son pocos
+/// campos y así no dependemos de librerías extra como AutoMapper.
+/// </summary>
 public static class DtoMapper
 {
     public static PersonaDto ToDto(this Persona p) => new()
@@ -81,6 +91,7 @@ public static class DtoMapper
         Cc = p.Cc, Nombre = p.Nombre, Apellido = p.Apellido, Genero = p.Genero, Edad = p.Edad
     };
 
+    // Trim() quita espacios sobrantes al inicio y al final antes de guardar.
     public static Persona ToEntity(this PersonaDto d) => new()
     {
         Cc = d.Cc, Nombre = d.Nombre.Trim(), Apellido = d.Apellido.Trim(), Genero = d.Genero, Edad = d.Edad
@@ -101,6 +112,7 @@ public static class DtoMapper
         IdProf = e.IdProf, CcPer = e.CcPer, Fecha = e.Fecha, Univer = e.Univer
     };
 
+    // .Date descarta la hora: en la base la columna es DATE.
     public static Estudio ToEntity(this EstudioDto d) => new()
     {
         IdProf = d.IdProf, CcPer = d.CcPer, Fecha = d.Fecha?.Date, Univer = d.Univer

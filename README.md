@@ -1,7 +1,7 @@
 # personapi-dotnet
 
 > Laboratorio 1 · Arquitectura de Software  
-> Autora: Katherine Sofía Bravo Herrera  
+> Integrantes (Grupo 3): Katherine Sofía Bravo Herrera · Daniel Avila Medina · Juan Sebastián Alvarez  
 > Monolito con patrón MVC y DAO en ASP.NET Core 10 LTS y SQL Server 2025 Express
 
 Aplicación web monolítica que implementa el ciclo completo de operaciones CRUD sobre las entidades `persona`, `profesion`, `estudios` y `telefono`, exponiendo dos canales de interacción desacoplados de la persistencia mediante el patrón **DAO (Data Access Object)**:
@@ -163,5 +163,5 @@ RESULTADO: 89 pruebas OK, 0 fallidas
 - **Documento de Arquitectura C4:** [`docs/arquitectura-c4.md`](docs/arquitectura-c4.md)
 - **Informe Académico del Laboratorio:** [`docs/informe-laboratorio.md`](docs/informe-laboratorio.md)
 - **Wiki del Proyecto:** [https://github.com/KatheBravo/personapi-dotnet/wiki](https://github.com/KatheBravo/personapi-dotnet/wiki)
-- **TAG de Entrega:** [`v1.0`](https://github.com/KatheBravo/personapi-dotnet/tree/v1.0)
-- **Release:** [Release v1.0](https://github.com/KatheBravo/personapi-dotnet/releases/tag/v1.0)
+- **TAG de Entrega:** [`v1.1`](https://github.com/KatheBravo/personapi-dotnet/tree/v1.1)
+- **Release:** [Release v1.1](https://github.com/KatheBravo/personapi-dotnet/releases/tag/v1.1)

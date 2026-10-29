@@ -9,8 +9,10 @@
 - **Plataforma:** .NET 10 LTS · ASP.NET Core MVC & Web API · Entity Framework Core 10 · SQL Server 2025 Express · Docker
 - **Integrantes (Grupo 3):**
   - Katherine Sofía Bravo Herrera
+  - Daniel Avila Medina
+  - Juan Sebastián Alvarez
 - **Repositorio:** [https://github.com/KatheBravo/personapi-dotnet](https://github.com/KatheBravo/personapi-dotnet)
-- **TAG de Entrega:** `v1.0`
+- **TAG de Entrega:** `v1.1`
 - **Fecha:** Octubre 2026
 
 ---

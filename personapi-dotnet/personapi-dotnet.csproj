@@ -2,8 +2,8 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <!-- .NET 7, que es el que pide el stack del laboratorio. -->
-    <TargetFramework>net7.0</TargetFramework>
+    <!-- .NET 10: la versión LTS vigente (soporte hasta noviembre de 2028). -->
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>personapi_dotnet</RootNamespace>
@@ -16,15 +16,19 @@
 
   <ItemGroup>
     <!-- Entity Framework Core: el ORM, más su proveedor para SQL Server y las herramientas
-         que traen el comando Scaffold-DbContext. -->
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.20" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.20" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.20">
+         que traen el comando Scaffold-DbContext. Su versión siempre va de la mano con la de .NET. -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.14" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.14" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.14">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <!-- Swashbuckle genera la especificación OpenAPI 3 y la página de Swagger UI. -->
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <!-- Swashbuckle genera la especificación OpenAPI 3 y la página de Swagger UI.
+         La versión 10 es la que da soporte a .NET 8 en adelante. -->
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
+    <!-- Dependencia indirecta (la trae el cliente de SQL Server). Se fija en la versión con los
+         últimos parches de seguridad para que NuGet no use una versión con vulnerabilidades conocidas. -->
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.14" />
   </ItemGroup>
 
 </Project>

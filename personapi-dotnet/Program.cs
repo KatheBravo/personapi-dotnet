@@ -5,7 +5,7 @@
 
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;   // en Swashbuckle 10 (Microsoft.OpenApi 2.x) los modelos están en este espacio de nombres
 using personapi_dotnet.Models.Entities;
 using personapi_dotnet.Models.Interfaces;
 using personapi_dotnet.Models.Repositories;
@@ -59,7 +59,7 @@ builder.Services.AddSwaggerGen(c =>
         Title = "personapi-dotnet",
         Version = "v1",
         Description = "API REST para el CRUD de persona, profesion, estudios y telefono " +
-                      "(Laboratorio 1 - Monolito MVC + DAO, .NET 7 y SQL Server 2022)."
+                      "(Laboratorio 1 - Monolito MVC + DAO, .NET 10 y SQL Server 2025)."
     });
 
     // Los comentarios /// de los controladores se compilan a un XML (ver el .csproj).

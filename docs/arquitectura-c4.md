@@ -1,25 +1,26 @@
 # Arquitectura de personapi-dotnet (modelo C4)
 
-El modelo C4 describe un sistema de software en cuatro niveles de zoom. Cada nivel responde una pregunta distinta:
+El modelo C4 describe la arquitectura del sistema de software en cuatro niveles de abstracción progresiva:
 
-| Nivel | Diagrama | Pregunta que responde |
-|---|---|---|
-| 1 | Contexto | ¿Quién usa el sistema y con qué se relaciona? |
-| 2 | Contenedores | ¿En qué piezas desplegables se divide (aplicación, base de datos...)? |
-| 3 | Componentes | ¿Cómo está organizado por dentro el contenedor principal? |
-| 4 | Código | ¿Cómo se ven las clases de un componente concreto? |
-
-Además se incluye el diagrama de despliegue, que muestra dónde corre cada contenedor.
-
-Convenciones de color (las de C4): azul oscuro = persona, azul = sistema, azul medio = contenedor, azul claro = componente, gris = actor externo. Las líneas punteadas son relaciones y su texto dice qué se hace y con qué tecnología.
-
-Los diagramas están escritos como código (Mermaid), así GitHub los dibuja directamente y quedan versionados junto al proyecto. La definición formal del modelo está en [`c4/workspace.dsl`](c4/workspace.dsl) (Structurizr DSL), que se puede abrir en <https://structurizr.com/dsl> para ver los mismos diagramas.
+| Nivel | Diagrama | Pregunta que responde | Artefacto PNG |
+|---|---|---|---|
+| 1 | Contexto | ¿Quién usa el sistema y con qué se relaciona? | [`c4-nivel1-contexto.png`](diagramas/c4-nivel1-contexto.png) |
+| 2 | Contenedores | ¿En qué piezas desplegables se divide la solución? | [`c4-nivel2-contenedores.png`](diagramas/c4-nivel2-contenedores.png) |
+| 3 | Componentes | ¿Cómo está organizado por dentro el contenedor principal? | [`c4-nivel3-componentes.png`](diagramas/c4-nivel3-componentes.png) |
+| 4 | Código | ¿Cómo se estructuran las clases y contratos del patrón DAO? | [`c4-nivel4-codigo.png`](diagramas/c4-nivel4-codigo.png) |
+| - | Despliegue | ¿Cómo se distribuyen y comunican los contenedores en Docker? | [`c4-despliegue.png`](diagramas/c4-despliegue.png) |
+| - | Modelo ER | ¿Cuál es el modelo relacional de la base de datos? | [`diagrama-er.png`](diagramas/diagrama-er.png) |
 
 ---
 
-## Nivel 1 · Contexto
+## Nivel 1 · Contexto del Sistema
 
-personapi-dotnet es un solo sistema que usan dos tipos de actores: una persona desde el navegador y cualquier programa que consuma la API REST.
+Describe las interacciones de los usuarios finales y sistemas clientes con el monolito `personapi-dotnet`.
+
+![C4 - Nivel 1: Contexto](diagramas/c4-nivel1-contexto.png)
+
+<details>
+<summary>Ver código fuente Mermaid</summary>
 
 ```mermaid
 flowchart TB
@@ -37,10 +38,18 @@ flowchart TB
     class cliente externo
     class sistema sistema
 ```
+</details>
+
+---
 
 ## Nivel 2 · Contenedores
 
-Por dentro, el sistema tiene tres contenedores: la aplicación web (el monolito), la base de datos y un contenedor que solo se ejecuta al desplegar para crear las tablas.
+Muestra las unidades de ejecución independientes orquestadas mediante Docker Compose: aplicación web, base de datos e inicializador automatizado.
+
+![C4 - Nivel 2: Contenedores](diagramas/c4-nivel2-contenedores.png)
+
+<details>
+<summary>Ver código fuente Mermaid</summary>
 
 ```mermaid
 flowchart TB
@@ -66,10 +75,18 @@ flowchart TB
     class web,init,db contenedor
     style sis fill:#ffffff,stroke:#666666,stroke-dasharray:6 4
 ```
+</details>
 
-## Nivel 3 · Componentes de la aplicación web
+---
 
-Aquí se ven los patrones del laboratorio: **MVC** (controladores + vistas + modelo) y **DAO** (interfaces + repositorios). Los controladores de vistas y los de la API comparten la misma capa DAO, por eso no se repite lógica de acceso a datos.
+## Nivel 3 · Componentes de la Aplicación Web
+
+Detalla los módulos internos del contenedor web organizados bajo los patrones arquitecturales **MVC** y **DAO**.
+
+![C4 - Nivel 3: Componentes](diagramas/c4-nivel3-componentes.png)
+
+<details>
+<summary>Ver código fuente Mermaid</summary>
 
 ```mermaid
 flowchart TB
@@ -110,10 +127,18 @@ flowchart TB
     class db contenedor
     style web fill:#ffffff,stroke:#666666,stroke-dasharray:6 4
 ```
+</details>
 
-## Nivel 4 · Código (patrón DAO aplicado a Persona)
+---
 
-Las otras tres entidades siguen exactamente la misma forma. En `estudios` los métodos reciben las dos partes de la llave compuesta.
+## Nivel 4 · Código (Patrón DAO)
+
+Diagrama de clases representativo de la implementación del patrón DAO para la entidad `Persona`. Las entidades `Profesion`, `Estudio` y `Telefono` siguen exactamente la misma estructura.
+
+![C4 - Nivel 4: Código](diagramas/c4-nivel4-codigo.png)
+
+<details>
+<summary>Ver código fuente Mermaid</summary>
 
 ```mermaid
 classDiagram
@@ -173,8 +198,18 @@ classDiagram
     PersonaRepository --> PersonaDbContext
     PersonaDbContext o-- Persona
 ```
+</details>
 
-### Modelo de datos
+---
+
+## Modelo Entidad - Relación (Base de Datos)
+
+Diagrama relacional correspondiente al esquema de base de datos implementado en `db/DDL.sql` (adaptado desde el modelo original `persona_ddl_mysql.sql`).
+
+![Diagrama Entidad-Relación](diagramas/diagrama-er.png)
+
+<details>
+<summary>Ver código fuente Mermaid</summary>
 
 ```mermaid
 erDiagram
@@ -205,10 +240,18 @@ erDiagram
         int duenio FK
     }
 ```
+</details>
 
-## Despliegue
+---
 
-Con Docker Compose los tres contenedores corren en una red interna. Solo se publican al equipo los puertos 8080 (aplicación) y 1433 (SQL Server, para revisarlo con SSMS).
+## Despliegue en Docker Compose
+
+Orquestación de los contenedores dentro de la red aislada de Compose, mapeando puertos de exposición hacia el host y administrando el volumen de almacenamiento persistente para SQL Server.
+
+![Diagrama de Despliegue](diagramas/c4-despliegue.png)
+
+<details>
+<summary>Ver código fuente Mermaid</summary>
 
 ```mermaid
 flowchart TB
@@ -237,3 +280,4 @@ flowchart TB
     class usuario persona
     class web,init,db contenedor
 ```
+</details>
